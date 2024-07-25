@@ -1,2 +1,2 @@
-$0 echo >/root/test.txt
+$0 echo
 sleep 600
