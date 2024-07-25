@@ -77,6 +77,8 @@ echo Failed to get response. Please check PROXY. >&2
 # 系统为 OpenWrt，且未指定 IFNAME 时，使用 uci
 # 其他情况使用 nft，并检测是否需要填充 uci
 SETDNAT() {
+	nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
+	iptables -t nat $(iptables-save | grep $OWNNAME | sed -e 's/-A/-D/') 2>/dev/null
 	if [ "$RELEASE" = "openwrt" ] && [ -z "$IFNAME" ]; then
 		nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
 		uci -q delete firewall.stun_foo
@@ -94,11 +96,9 @@ SETDNAT() {
 		[ -n "$IFNAME" ] && IIFNAME="iifname $IFNAME"
 		nft add table ip STUN
 		nft add chain ip STUN DNAT { type nat hook prerouting priority dstnat \; }
-		nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
 		nft insert rule ip STUN DNAT $IIFNAME tcp dport $LANPORT counter redirect to :$WANPORT comment $OWNNAME
 	elif iptables -V >/dev/null 2>&1; then
 		[ -n "$IFNAME" ] && IIFNAME="-i $IFNAME"
-		iptables -t nat $(iptables-save | grep $OWNNAME | sed -e 's/-A/-D/') 2>/dev/null
 		iptables -t nat -I PREROUTING $IIFNAME -p tcp --dport $LANPORT -m comment --comment $OWNNAME -j REDIRECT --to-ports $WANPORT
 	fi
 	if [ "$RELEASE" = "openwrt" ] && [ "$UCI" != 1 ]; then
