@@ -88,14 +88,18 @@ SETDNAT() {
 		uci set firewall.$OWNNAME.src_dport=$LANPORT
 		uci set firewall.$OWNNAME.dest_port=$WANPORT
 		uci commit firewall
-		fw4 -q reload
+		/etc/init.d/firewall reload >/dev/null 2>&1
 		UCI=1
-	else
+	elif nft -v >/dev/null 2>&1; then
 		[ -n "$IFNAME" ] && IIFNAME="iifname $IFNAME"
 		nft add table ip STUN
 		nft add chain ip STUN DNAT { type nat hook prerouting priority dstnat \; }
 		nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
 		nft insert rule ip STUN DNAT $IIFNAME tcp dport $LANPORT counter redirect to :$WANPORT comment $OWNNAME
+	elif iptables -V >/dev/null 2>&1; then
+		[ -n "$IFNAME" ] && IIFNAME="-i $IFNAME"
+		iptables -t nat $(iptables-save | grep $OWNNAME | sed -e 's/-A/-D/') 2>/dev/null
+		iptables -t nat -I PREROUTING $IIFNAME -p tcp --dport $LANPORT -m comment --comment $OWNNAME -j REDIRECT --to-ports $WANPORT
 	fi
 	if [ "$RELEASE" = "openwrt" ] && [ "$UCI" != 1 ]; then
 		uci -q delete firewall.stun_foo && RELOAD=1
@@ -116,7 +120,7 @@ SETDNAT() {
 			RELOAD=1
 		fi
 		uci commit firewall
-		[ "$RELOAD" = 1 ] && fw4 -q reload
+		[ "$RELOAD" = 1 ] && /etc/init.d/firewall reload >/dev/null 2>&1
 	fi
 	DNAT=1
 }
