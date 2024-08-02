@@ -1,11 +1,11 @@
 # 以下变量需按要求填写
-PROXY='socks5://192.168.1.168:10808'		# 可用的代理协议、地址与端口
-IFNAME=						# 指定接口，可留空；仅在多 WAN 时需要；拨号接口的格式为 "pppoe-wancm"
-HATHDIR=/mnt/hath				# H@H 所在目录
-HATHCID=12345					# H@H 的客户端 ID
-EHIPBID=1234567					# ipb_member_id
-EHIPBPW=0123456789abcdef0123456789abcdef	# ipb_pass_hash
-GWLADDR=192.168.1.1				# 主路由 LAN 的 IPv4 地址
+PROXY='http://jpfhDg:qawsedrftgyhujikolp@hathproxy.ydns.eu:14913'
+IFNAME=
+HATHDIR=/mnt/hath
+HATHCID=48281
+EHIPBID=3809340
+EHIPBPW=02a8cd074101c9d60ce793a1468ba07a
+GWLADDR=192.168.97.1
 
 WANADDR=$1
 WANPORT=$2
@@ -78,7 +78,7 @@ echo Failed to get response. Please check PROXY. >&2
 # 其他情况使用 nft，并检测是否需要填充 uci
 SETDNAT() {
 	nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
-	iptables -t nat $(iptables-save | grep $OWNNAME | sed 's/-A/-D/') 2>/dev/null
+	iptables -t nat $(iptables-save | grep $OWNNAME | sed -e 's/-A/-D/') 2>/dev/null
 	if [ "$RELEASE" = "openwrt" ] && [ -z "$IFNAME" ]; then
 		nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
 		uci -q delete firewall.stun_foo
