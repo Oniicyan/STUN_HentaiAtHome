@@ -2,18 +2,18 @@
 PROXY='http://jpfhDg:qawsedrftgyhujikolp@hathproxy.ydns.eu:14913'
 
 # 从 Lucky 自定义命令中传递参数
-IFNAME=${10}	# 指定接口，可留空；仅在多 WAN 时需要；拨号接口的格式为 "pppoe-wancm"
-GWLADDR=$5		# 主路由 LAN 的 IPv4 地址
-HATHDIR=$6		# H@H 所在目录
-HATHCID=$7		# H@H 的客户端 ID
-EHIPBID=$8		# ipb_member_id
-EHIPBPW=$9		# ipb_pass_hash
+IFNAME=$9		# 指定接口，可留空；仅在多 WAN 时需要；拨号接口的格式为 "pppoe-wancm"
+GWLADDR=$4		# 主路由 LAN 的 IPv4 地址
+HATHDIR=$5		# H@H 所在目录
+HATHCID=$6		# H@H 的客户端 ID
+EHIPBID=$7		# ipb_member_id
+EHIPBPW=$8		# ipb_pass_hash
 
 WANADDR=$1
 WANPORT=$2
 LANPORT=$3
-L4PROTO=$4
-OWNADDR=
+L4PROTO=tcp
+OWNADDR=		# Lucky 不传递穿透通道本地地址，留空
 
 OWNNAME=$(echo stun_hath$([ -n "$IFNAME" ] && echo @$IFNAME) | sed 's/[[:punct:]]/_/g')
 RELEASE=$(grep ^ID= /etc/os-release | awk -F '=' '{print$2}' | tr -d \")
