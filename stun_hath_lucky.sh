@@ -10,9 +10,9 @@ HATHCID=$6		# H@H 的客户端 ID
 EHIPBID=$7		# ipb_member_id
 EHIPBPW=$8		# ipb_pass_hash
 
-WANADDR=$1
-WANPORT=$2
-LANPORT=$3
+WANADDR=$1		# 使用本地脚本时，该变量不修改
+WANPORT=$2		# 使用本地脚本时，该变量不修改
+LANPORT=$3		# 使用本地脚本时，该变量与 “穿透通道本地端口” 一致
 L4PROTO=tcp
 OWNADDR=		# Lucky 不传递穿透通道本地地址，留空
 
