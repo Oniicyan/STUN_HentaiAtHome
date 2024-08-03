@@ -40,7 +40,7 @@ Lucky 中使用以下自定义命令，**注意编辑脚本路径**
 
 由于本地脚本中已编辑好变量，因此只需要两行命令
 
-Lucky 变量 `${ip} ${port}` 不可省略大括号
+Lucky 变量 `${ip}` `${port}` 不可省略大括号
 
 ```
 sh /mnt/hath/stun_hath_lucky.sh ${ip} ${port}
