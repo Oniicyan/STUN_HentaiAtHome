@@ -25,7 +25,7 @@ EHIPBID=1234567      # ipb_member_id
 EHIPBPW=0123456789abcdef0123456789abcdef  # ipb_pass_hash
 IFNAME=              # 指定接口，可留空；仅在多 WAN 时需要；拨号接口的格式为 "pppoe-wancm"
 
-sh <(curl -Ls https://gitee.com/oniicyan/stun_hath/raw/master/stun_hath_lucky.sh) $ip $port $LANPORT $GWLADDR $HATHDIR $HATHCID $EHIPBID $EHIPBPW $IFNAME
+sh <(curl -Ls https://gitee.com/oniicyan/stun_hath/raw/master/stun_hath_lucky.sh) ${ip} ${port} $LANPORT $GWLADDR $HATHDIR $HATHCID $EHIPBID $EHIPBPW $IFNAME
 
 echo -n HentaiAtHome OK.
 ```
