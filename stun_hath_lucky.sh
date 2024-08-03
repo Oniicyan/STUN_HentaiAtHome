@@ -1,7 +1,8 @@
 # 公共代理，不保证质量
 PROXY='http://jpfhDg:qawsedrftgyhujikolp@hathproxy.ydns.eu:14913'
 
-# 从 Lucky 自定义命令中传递参数
+# 使用网络脚本时，从 Lucky 自定义命令中传递参数
+# 使用本地脚本时，请事先修改好变量值
 IFNAME=$9		# 指定接口，可留空；仅在多 WAN 时需要；拨号接口的格式为 "pppoe-wancm"
 GWLADDR=$4		# 主路由 LAN 的 IPv4 地址
 HATHDIR=$5		# H@H 所在目录
