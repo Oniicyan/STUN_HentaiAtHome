@@ -40,8 +40,10 @@ Lucky 中使用以下自定义命令，**注意编辑脚本路径**
 
 由于本地脚本中已编辑好变量，因此只需要两行命令
 
+Lucky 变量 `${ip} ${port}` 不可省略大括号
+
 ```
-sh /mnt/hath/stun_hath_lucky.sh $ip $port
+sh /mnt/hath/stun_hath_lucky.sh ${ip} ${port}
 echo -n HentaiAtHome OK.
 ```
 
@@ -60,8 +62,8 @@ HATHCID=12345        # H@H 的客户端 ID
 EHIPBID=1234567      # ipb_member_id
 EHIPBPW=0123456789abcdef0123456789abcdef  # ipb_pass_hash
 
-WANADDR=$ip
-WANPORT=$port
+WANADDR=${ip}
+WANPORT=${port}
 LANPORT=12345        # 穿透通道本地端口
 L4PROTO=tcp
 OWNADDR=             # Lucky 不传递穿透通道本地地址，留空
