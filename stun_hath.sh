@@ -156,7 +156,7 @@ RUNHATH
 # 检测启动结果
 while :; do
 	sleep 60
-	grep "Startup notification failed" $HATHLOG || { screen -S $OWNNAME -X log off; exit; }
+	grep "Startup notification failed" $HATHLOG || break
 	if grep "port $WANPORT" $HATHLOG; then
 		sleep 300
 		RUNHATH
@@ -166,4 +166,5 @@ while :; do
 	fi
 done
 
+screen -S $OWNNAME -X log off
 echo -n HentaiAtHome OK.
