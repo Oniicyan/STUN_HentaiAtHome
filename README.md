@@ -40,13 +40,12 @@ sh <(curl -Ls https://gitee.com/oniicyan/stun_hath/raw/master/stun_hath_lucky.sh
 
 Lucky 中使用以下自定义命令，**注意编辑脚本路径**
 
-由于本地脚本中已编辑好变量，因此只需要两行命令
+由于本地脚本中已编辑好变量，因此只需要一行命令
 
 Lucky 变量 `${ip}` `${port}` 不可省略大括号
 
 ```
 sh /mnt/hath/stun_hath_lucky.sh ${ip} ${port}
-echo -n HentaiAtHome OK.
 ```
 
 也可把脚本直接粘贴到自定义脚本框中修改变量值，注意此时的 `WANADDR` 与 `WANPORT`
