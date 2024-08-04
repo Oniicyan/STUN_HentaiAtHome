@@ -26,8 +26,6 @@ EHIPBPW=0123456789abcdef0123456789abcdef  # ipb_pass_hash
 IFNAME=              # 指定接口，可留空；仅在多 WAN 时需要；拨号接口的格式为 "pppoe-wancm"
 
 sh <(curl -Ls https://gitee.com/oniicyan/stun_hath/raw/master/stun_hath_lucky.sh) ${ip} ${port} $LANPORT $GWLADDR $HATHDIR $HATHCID $EHIPBID $EHIPBPW $IFNAME
-
-echo -n HentaiAtHome OK.
 ```
 
 --------------------------------------------------------
@@ -73,9 +71,6 @@ L4PROTO=tcp
 OWNADDR=             # Lucky 不传递穿透通道本地地址，留空
 
     ...... 剩余脚本内容 ......
-
-# 最尾部输出结果到 Lucky 日志
-echo -n HentaiAtHome OK.
 ```
 
 **需要使用自己的代理时，请使用本地脚本并修改 PROXY 变量值**
