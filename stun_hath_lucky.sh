@@ -168,3 +168,5 @@ while :; do
 		exec "$0" "$@"
 	fi
 done
+
+echo -n HentaiAtHome OK.
