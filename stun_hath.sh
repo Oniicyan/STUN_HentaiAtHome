@@ -165,6 +165,5 @@ while :; do
 		exec "$0" "$@"
 	fi
 done
-
 screen -S $OWNNAME -X log off
 echo -n HentaiAtHome OK.
