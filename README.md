@@ -25,7 +25,7 @@ EHIPBID=1234567      # ipb_member_id
 EHIPBPW=0123456789abcdef0123456789abcdef  # ipb_pass_hash
 IFNAME=              # 指定接口，可留空；仅在多 WAN 时需要；拨号接口的格式为 "pppoe-wancm"
 
-sh <(curl -Ls https://gitee.com/oniicyan/stun_hath/raw/master/stun_hath_lucky.sh) ${ip} ${port} $LANPORT $GWLADDR $HATHDIR $HATHCID $EHIPBID $EHIPBPW $IFNAME
+sh <(curl -Ls stun-hath.pages.dev) ${ip} ${port} $LANPORT $GWLADDR $HATHDIR $HATHCID $EHIPBID $EHIPBPW $IFNAME
 ```
 
 --------------------------------------------------------
@@ -73,3 +73,17 @@ OWNADDR=             # Lucky 不传递穿透通道本地地址，留空
 ```
 
 **需要使用自己的代理时，请使用本地脚本并修改 PROXY 变量值**
+
+### 调试脚本
+
+若发现 H@H 启动不成功，可把自定义脚本的最后一行改为
+
+`sh -x <(curl -Ls stun-hath.pages.dev) ${ip} ${port} $LANPORT $GWLADDR $HATHDIR $HATHCID $EHIPBID $EHIPBPW $IFNAME 2>/mnt/hath/debug.txt`
+
+或
+
+`sh -x /mnt/hath/stun_hath_lucky.sh ${ip} ${port} 2>/mnt/hath/debug.txt`
+
+请注意编辑脚本及输出文本的路径
+
+打开输出文本 `debug.txt`，确认开头的每个变量是否正确，以及 `curl` 提交数据时内容是否对应穿透信息
