@@ -84,6 +84,6 @@ OWNADDR=             # Lucky 不传递穿透通道本地地址，留空
 
 `sh -x /mnt/hath/stun_hath_lucky.sh ${ip} ${port} 2>/mnt/hath/debug.txt`
 
-请注意编辑脚本及输出文本的路径
+**请注意编辑脚本及输出文本的路径**
 
 打开输出文本 `debug.txt`，确认开头的每个变量是否正确，以及 `curl` 提交数据时内容是否对应穿透信息
