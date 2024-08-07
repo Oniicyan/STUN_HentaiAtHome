@@ -9,7 +9,6 @@ set EHIPBPW=0123456789abcdef0123456789abcdef
 :: 建议自行指定，注意格式
 set PROXY=http://jpfhDg:qawsedrftgyhujikolp@hathproxy.ydns.eu:14913
 
-del %TEMP%\STUN_* >nul 2>&1
 cd /D %HATHDIR%
 set WANADDR=${ip}
 set WANPORT=${port}
@@ -17,6 +16,7 @@ set RETRY=0
 setlocal enabledelayedexpansion
 
 :: 获取上次穿透的时间戳
+set OLDPORT=0
 set OLDTIME=none
 if EXIST stun_hath.info (
 	for /F "tokens=7" %%a in (stun_hath.info) do (set OLDPORT=%%a)
@@ -90,7 +90,7 @@ del .\log\log_out >nul 2>&1
 start javaw -Xms16m -Xmx512m -jar HentaiAtHomeGUI.jar --silentstart
 timeout 120 /NOBREAK >nul
 findstr /C:"initialization completed successfully" .\log\log_out >nul 2>&1 &&^
-echo HentaiAtHome ok. && exit
+echo HentaiAtHome ok. && exit 0
 timeout 30 /NOBREAK >nul
 curl -Ls -m 10 ^
 -x %PROXY% ^
@@ -98,8 +98,8 @@ curl -Ls -m 10 ^
 -o %TEMP%\hentaiathome.php ^
 "https://e-hentai.org/hentaiathome.php"
 findstr Online %TEMP%\hentaiathome.php >nul &&^
-echo HentaiAtHome ok. && exit
-if %RETRY% GEQ 3 exit
+echo HentaiAtHome ok. && exit 0
+if %RETRY% GEQ 3 exit 1
 timeout 300 /NOBREAK >nul
 set /A RETRY=%RETRY%+1
 goto RETRY
