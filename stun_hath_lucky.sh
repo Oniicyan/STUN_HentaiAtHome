@@ -38,7 +38,7 @@ echo $(date) $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT >>$HATHDIR/$OWNNA
 
 # 获取 H@H 设置信息
 TEMPPHP=$(mktemp)
-curl -s -m 10 \
+curl -Ls -m 10 \
 -x $PROXY \
 -b 'ipb_member_id='$EHIPBID'; ipb_pass_hash='$EHIPBPW'' \
 -o $TEMPPHP \
@@ -68,7 +68,7 @@ DATA="settings=1&f_port=$WANPORT&f_cname=$f_cname&f_throttle_KB=$f_throttle_KB&f
 [ -n "$f_use_less_memory" ] && DATA="$DATA&f_use_less_memory=on"
 [ -n "$f_is_hathdler" ] && DATA="$DATA&f_is_hathdler=on"
 POSTPHP=$(mktemp)
-curl -s -m 10 \
+curl -Ls -m 10 \
 -x $PROXY \
 -b 'ipb_member_id='$EHIPBID'; ipb_pass_hash='$EHIPBPW'' \
 -o $POSTPHP \
