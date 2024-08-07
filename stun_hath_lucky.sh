@@ -1,4 +1,5 @@
 # 公共代理，不保证质量
+# 建议使用本地脚本并自行指定，注意格式
 PROXY='http://jpfhDg:qawsedrftgyhujikolp@hathproxy.ydns.eu:14913'
 
 # 使用网络脚本时，从 Lucky 自定义命令中传递参数
