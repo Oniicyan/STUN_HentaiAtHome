@@ -75,7 +75,7 @@ curl -s -m 10 ^
 "https://e-hentai.org/hentaiathome.php?cid=%HATHCID%^&act=settings"
 
 :: UPnP 失败则使用 PORTPROXY
-upnpc.exe -i -d %LANPORT% tcp >nul
+upnpc.exe -i -d %OLDPORT% tcp >nul 2>&1
 upnpc.exe -i -e "STUN HATH %WANPORT%->%LANPORT%->%WANPORT%" -a @ %WANPORT% %LANPORT% tcp >nul
 if NOT %ERRORLEVEL%==0 (
 	netsh interface portproxy delete v4tov4 %LANPORT% >nul
