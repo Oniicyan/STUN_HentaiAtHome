@@ -37,8 +37,8 @@ echo $(date) $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT >>$HATHDIR/$OWNNA
 [ $(($(date +%s) - $OLDDATE)) -lt 30 ] && sleep 30
 
 # 获取 H@H 设置信息
-HATHPHP=/tmp/$OWNNAME.php
-touch $HATHPHP
+HATHPHP=$(mktemp)
+# touch $HATHPHP
 curl -s -m 10 \
 -x $PROXY \
 -b 'ipb_member_id='$EHIPBID'; ipb_pass_hash='$EHIPBPW'' \
@@ -75,7 +75,8 @@ curl -s -m 10 \
 -d ''$DATA'' \
 'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
 [ "$(grep f_port $HATHPHP | awk -F '"' '{print$6}')" = $WANPORT ] || \
-echo Failed to get response. Please check PROXY. >&2
+echo Failed to get response. Please check PROXY. >&2 && exit 1
+mv $HATHPHP /tmp/$OWNNAME.php
 
 # 若 H@H 运行在主路由上，则添加 DNAT 规则
 # 系统为 OpenWrt，且未指定 IFNAME 时，使用 uci
