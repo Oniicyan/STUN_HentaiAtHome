@@ -40,7 +40,7 @@ if %OLDTIME:~,10%==%NOWTIME:~,10% (
 
 :: 获取 H@H 设置信息
 del stun_hath.php 2>nul
-curl -s -m 10 ^
+curl -Ls -m 10 ^
 -x %PROXY% ^
 -b "ipb_member_id=%EHIPBID%; ipb_pass_hash=%EHIPBPW%" ^
 -o stun_hath.php ^
@@ -69,7 +69,7 @@ findstr f_use_less_memory stun_hath.php | findstr checked >nul &&^
 set DATA="%DATA:"=%&f_use_less_memory=on"
 findstr f_is_hathdler stun_hath.php | findstr checked >nul &&^
 set DATA="%DATA:"=%&f_is_hathdler=on"
-curl -s -m 10 ^
+curl -Ls -m 10 ^
 -x %PROXY% ^
 -b "ipb_member_id=%EHIPBID%; ipb_pass_hash=%EHIPBPW%" ^
 -o stun_hath.php ^
@@ -91,7 +91,7 @@ timeout 60 /NOBREAK >nul
 findstr /C:"initialization completed successfully" .\log\log_out >nul 2>&1 &&^
 echo HentaiAtHome ok. && exit
 timeout 60 /NOBREAK >nul
-curl -s -m 10 ^
+curl -Ls -m 10 ^
 -x %PROXY% ^
 -b "ipb_member_id=%EHIPBID%; ipb_pass_hash=%EHIPBPW%" ^
 -o %TEMP%\hentaiathome.php ^
