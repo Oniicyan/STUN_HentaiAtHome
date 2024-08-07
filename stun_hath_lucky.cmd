@@ -33,7 +33,7 @@ echo %date%%time% tcp %WANADDR% : %WANPORT% -^> : %LANPORT% >>stun_hath.log
 echo %OLDTIME%| findstr "^[0-9]*$" >nul &&^
 if %OLDTIME:~,10%==%NOWTIME:~,10% (
 	set /A CMPTIME=1%NOWTIME:~8,4%-1%OLDTIME:~8,4%
-	if NOT !CMPTIME! GTR 1 (choice /D Y /T 60 >nul)
+	if NOT !CMPTIME! GTR 1 (timeout 60 /NOBREAK >nul)
 )
 
 :RETRY
@@ -55,7 +55,7 @@ for /F tokens^=6^ delims^=^" %%a in ('findstr f_diskremaining_MB stun_hath.php')
 for /F "tokens=3" %%a in ('handle.exe -nobanner -accepteula %HATHDIR%\HentaiAtHomeGUI.jar') do (
 	echo createobject^("wscript.shell"^).run "%HATHDIR%\windows-kill.exe -SIGINT %%a",0 >%TEMP%\windows-kill.vbs
 	start %TEMP%\windows-kill.vbs)
-choice /D Y /T 30 >nul
+timeout 30 /NOBREAK >nul
 
 :: 更新 H@H 端口信息
 set DATA="settings=1&f_port=%WANPORT%&f_cname=%f_cname: =+%&f_throttle_KB=%f_throttle_KB%&f_disklimit_GB=%f_disklimit_GB%"
@@ -87,10 +87,10 @@ if NOT %ERRORLEVEL%==0 (
 :: 启动 H@H
 del .\log\log_out >nul 2>&1
 start javaw -Xms16m -Xmx512m -jar HentaiAtHomeGUI.jar --silentstart
-choice /D Y /T 60 >nul
+timeout 60 /NOBREAK >nul
 findstr /C:"initialization completed successfully" .\log\log_out >nul 2>&1 &&^
 echo HentaiAtHome ok. && exit
-choice /D Y /T 60 >nul
+timeout 60 /NOBREAK >nul
 curl -s -m 10 ^
 -x %PROXY% ^
 -b "ipb_member_id=%EHIPBID%; ipb_pass_hash=%EHIPBPW%" ^
@@ -99,6 +99,6 @@ curl -s -m 10 ^
 findstr Online %TEMP%\hentaiathome.php >nul &&^
 echo HentaiAtHome ok. && exit
 if %RETRY% GEQ 3 exit
-choice /D Y /T 300 >nul
+timeout 300 /NOBREAK >nul
 set /A RETRY=%RETRY%+1
 goto RETRY
