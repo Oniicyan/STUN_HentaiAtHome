@@ -87,10 +87,10 @@ if NOT %ERRORLEVEL%==0 (
 :: 启动 H@H
 del .\log\log_out >nul 2>&1
 start javaw -Xms16m -Xmx512m -jar HentaiAtHomeGUI.jar --silentstart
-timeout 60 /NOBREAK >nul
+timeout 120 /NOBREAK >nul
 findstr /C:"initialization completed successfully" .\log\log_out >nul 2>&1 &&^
 echo HentaiAtHome ok. && exit
-timeout 60 /NOBREAK >nul
+timeout 30 /NOBREAK >nul
 curl -Ls -m 10 ^
 -x %PROXY% ^
 -b "ipb_member_id=%EHIPBID%; ipb_pass_hash=%EHIPBPW%" ^
