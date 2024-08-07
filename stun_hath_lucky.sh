@@ -19,7 +19,7 @@ OWNADDR=		# Lucky 不传递穿透通道本地地址，留空
 
 OWNNAME=$(echo stun_hath$([ -n "$IFNAME" ] && echo @$IFNAME) | sed 's/[[:punct:]]/_/g')
 RELEASE=$(grep ^ID= /etc/os-release | awk -F '=' '{print$2}' | tr -d \")
-OLDPORT=$(awk -F ':| ' '{print$6}' $HATHDIR/$OWNNAME.info 2>/dev/null)
+OLDPORT=$LANPORT	# Lucky 使用固定本地端口
 OLDDATE=$(awk '{print$NF}' $HATHDIR/$OWNNAME.info 2>/dev/null)
 
 # 防止脚本重复运行
