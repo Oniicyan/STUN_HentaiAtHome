@@ -156,7 +156,7 @@ RUNHATH
 
 # 检测启动结果
 while :; do
-	sleep 60
+	sleep 120
 	grep "Startup notification failed" $HATHLOG || break
 	if grep "port $WANPORT" $HATHLOG; then
 		sleep 300
