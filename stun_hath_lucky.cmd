@@ -9,11 +9,12 @@ set EHIPBPW=0123456789abcdef0123456789abcdef
 :: 建议自行指定，注意格式
 set PROXY=http://jpfhDg:qawsedrftgyhujikolp@hathproxy.ydns.eu:14913
 
-setlocal enabledelayedexpansion
+del %TEMP%\STUN_* >nul 2>&1
 cd /D %HATHDIR%
 set WANADDR=${ip}
 set WANPORT=${port}
 set RETRY=0
+setlocal enabledelayedexpansion
 
 :: 获取上次穿透的时间戳
 set OLDTIME=none
