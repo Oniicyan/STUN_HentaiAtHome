@@ -71,7 +71,7 @@ curl -s -m 10 \
 -d ''$DATA'' \
 'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
 [ "$(grep f_port $HATHPHP | awk -F '"' '{print$6}')" = $WANPORT ] || \
-echo Failed to get response. Please check PROXY. >&2
+echo Failed to get response. Please check PROXY. >&2 && exit 1
 
 # 若 H@H 运行在主路由上，则添加 DNAT 规则
 # 系统为 OpenWrt，且未指定 IFNAME 时，使用 uci
