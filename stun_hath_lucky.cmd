@@ -1,17 +1,16 @@
-:: 以下变量需要填写
-set LANPORT=12345
-set HATHDIR=D:\HentaiAtHome
-set HATHCID=12345
-set EHIPBID=1234567
-set EHIPBPW=0123456789abcdef0123456789abcdef
-
 :: 公共代理，不保证质量
 :: 建议自行指定，注意格式
 set PROXY=http://jpfhDg:qawsedrftgyhujikolp@hathproxy.ydns.eu:14913
 
+set WANADDR=%1
+set WANPORT=%2
+set LANPORT=%3
+set HATHDIR=%4
+set HATHCID=%5
+set EHIPBID=%6
+set EHIPBPW=%7
+
 cd /D %HATHDIR%
-set WANADDR=${ip}
-set WANPORT=${port}
 set RETRY=0
 setlocal enabledelayedexpansion
 
@@ -87,6 +86,7 @@ if NOT %ERRORLEVEL%==0 (
 
 :: 启动 H@H
 del .\log\log_out >nul 2>&1
+del %TEMP%\STUN_*
 start javaw -Xms16m -Xmx512m -jar HentaiAtHomeGUI.jar --silentstart
 timeout 120 /NOBREAK >nul
 findstr /C:"initialization completed successfully" .\log\log_out >nul 2>&1 &&^
