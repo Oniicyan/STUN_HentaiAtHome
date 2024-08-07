@@ -15,7 +15,7 @@ OWNADDR=$6
 
 OWNNAME=$(echo $0 | awk -F / '{print$NF}' | awk -F . '{print$1}' | sed 's/[[:punct:]]/_/g')
 RELEASE=$(grep ^ID= /etc/os-release | awk -F '=' '{print$2}' | tr -d \")
-OLDPORT=$(awk -F ':| ' '{print$3}' $HATHDIR/$OWNNAME.info 2>/dev/null)
+OLDPORT=$(awk -F ':| ' '{print$6}' $HATHDIR/$OWNNAME.info 2>/dev/null)
 OLDDATE=$(awk '{print$NF}' $HATHDIR/$OWNNAME.info 2>/dev/null)
 
 # 防止脚本重复运行
