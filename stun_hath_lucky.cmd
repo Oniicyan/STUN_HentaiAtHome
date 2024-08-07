@@ -52,7 +52,7 @@ for /F tokens^=6^ delims^=^" %%a in ('findstr p_mthbwcap stun_hath.php') do (set
 for /F tokens^=6^ delims^=^" %%a in ('findstr f_diskremaining_MB stun_hath.php') do (set f_diskremaining_MB=%%a)
 
 :: 停止 H@H，等待 30 秒
-for /F "tokens=3" %%a in ('handle.exe -y -nobanner -accepteula %HATHDIR%\HentaiAtHomeGUI.jar') do (windows-kill.exe -SIGINT %%a >nul)
+for /F "tokens=3" %%a in ('handle.exe -nobanner -accepteula %HATHDIR%\HentaiAtHomeGUI.jar') do (windows-kill.exe -SIGINT %%a >nul)
 choice /D Y /T 30 >nul
 
 :: 更新 H@H 端口信息
