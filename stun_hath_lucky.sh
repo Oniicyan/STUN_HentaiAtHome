@@ -37,22 +37,21 @@ echo $(date) $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT >>$HATHDIR/$OWNNA
 [ $(($(date +%s) - $OLDDATE)) -lt 30 ] && sleep 30
 
 # 获取 H@H 设置信息
-HATHPHP=$(mktemp)
-# touch $HATHPHP
+TEMPPHP=$(mktemp)
 curl -s -m 10 \
 -x $PROXY \
 -b 'ipb_member_id='$EHIPBID'; ipb_pass_hash='$EHIPBPW'' \
--o $HATHPHP \
+-o $TEMPPHP \
 'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
-f_cname=$(grep f_cname $HATHPHP | awk -F '"' '{print$6}' | sed 's/[ ]/+/g')
-f_throttle_KB=$(grep f_throttle_KB $HATHPHP | awk -F '"' '{print$6}')
-f_disklimit_GB=$(grep f_disklimit_GB $HATHPHP | awk -F '"' '{print$6}')
-p_mthbwcap=$(grep p_mthbwcap $HATHPHP | awk -F '"' '{print$6}')
-f_diskremaining_MB=$(grep f_diskremaining_MB $HATHPHP | awk -F '"' '{print$6}')
-f_enable_bwm=$(grep f_enable_bwm $HATHPHP | grep checked)
-f_disable_logging=$(grep f_disable_logging $HATHPHP | grep checked)
-f_use_less_memory=$(grep f_use_less_memory $HATHPHP | grep checked)
-f_is_hathdler=$(grep f_is_hathdler $HATHPHP | grep checked)
+f_cname=$(grep f_cname $TEMPPHP | awk -F '"' '{print$6}' | sed 's/[ ]/+/g')
+f_throttle_KB=$(grep f_throttle_KB $TEMPPHP | awk -F '"' '{print$6}')
+f_disklimit_GB=$(grep f_disklimit_GB $TEMPPHP | awk -F '"' '{print$6}')
+p_mthbwcap=$(grep p_mthbwcap $TEMPPHP | awk -F '"' '{print$6}')
+f_diskremaining_MB=$(grep f_diskremaining_MB $TEMPPHP | awk -F '"' '{print$6}')
+f_enable_bwm=$(grep f_enable_bwm $TEMPPHP | grep checked)
+f_disable_logging=$(grep f_disable_logging $TEMPPHP | grep checked)
+f_use_less_memory=$(grep f_use_less_memory $TEMPPHP | grep checked)
+f_is_hathdler=$(grep f_is_hathdler $TEMPPHP | grep checked)
 
 # 停止 H@H，等待 30 秒
 if [ "$(screen -list | grep $OWNNAME)" ]; then
@@ -68,17 +67,16 @@ DATA="settings=1&f_port=$WANPORT&f_cname=$f_cname&f_throttle_KB=$f_throttle_KB&f
 [ -n "$f_disable_logging" ] && DATA="$DATA&f_disable_logging=on"
 [ -n "$f_use_less_memory" ] && DATA="$DATA&f_use_less_memory=on"
 [ -n "$f_is_hathdler" ] && DATA="$DATA&f_is_hathdler=on"
-HATHPHP=/tmp/$OWNNAME.php
-touch $HATHPHP
+POSTPHP=$(mktemp)
 curl -s -m 10 \
 -x $PROXY \
 -b 'ipb_member_id='$EHIPBID'; ipb_pass_hash='$EHIPBPW'' \
--o $HATHPHP \
+-o $POSTPHP \
 -d ''$DATA'' \
 'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
-[ "$(grep f_port $HATHPHP | awk -F '"' '{print$6}')" = $WANPORT ] || \
-echo Failed to get response. Please check PROXY. >&2 && exit 1
-# mv $HATHPHP /tmp/$OWNNAME.php
+[ "$(grep f_port $POSTPHP | awk -F '"' '{print$6}')" = $WANPORT ] || \
+echo Failed to get response. Please check PROXY. >&2
+mv $POSTPHP /tmp/$OWNNAME.php
 
 # 若 H@H 运行在主路由上，则添加 DNAT 规则
 # 系统为 OpenWrt，且未指定 IFNAME 时，使用 uci
