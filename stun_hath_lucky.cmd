@@ -18,7 +18,7 @@ set RETRY=0
 :: 获取上次穿透的时间戳
 set OLDTIME=none
 if EXIST stun_hath.info (
-	for /F "tokens=4" %%a in (stun_hath.info) do (set OLDPORT=%%a)
+	for /F "tokens=7" %%a in (stun_hath.info) do (set OLDPORT=%%a)
 	for /F "tokens=8" %%a in (stun_hath.info) do (set OLDTIME=%%a)
 )
 
