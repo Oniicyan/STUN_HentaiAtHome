@@ -30,6 +30,10 @@ IFNAME=              # 指定接口，可留空；仅在多 WAN 时需要；拨�
 sh <(curl -Ls stun-hath.pages.dev) ${ip} ${port} $LANPORT $GWLADDR $HATHDIR $HATHCID $EHIPBID $EHIPBPW $IFNAME
 ```
 
+网络脚本如要更换代理，请把最后一行改为以下，注意编辑协议、地址与端口
+
+`sh <(curl -Ls stun-hath.pages.dev | sed 's/h.*3/socks5:\/\/192.168.1.1:10808/') ${ip} ${port} $LANPORT $GWLADDR $HATHDIR $HATHCID $EHIPBID $EHIPBPW $IFNAME`
+
 --------------------------------------------------------
 
 **如要指定接口，请配置页中选择定制模式并正确指定 IP 或网卡**
