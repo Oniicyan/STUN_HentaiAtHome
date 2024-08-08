@@ -131,8 +131,8 @@ f_cname= 	    # 客户端名称，空格换成 + 号
 f_throttle_KB=	    # 上行带宽配额，单位是 KB
 f_disklimit_GB=	    # 磁盘空间配额，单位是 GB
 # 以下为可选参数
-p_mthbwcap=0		    # 每月流量上限，单位是 GB，无限制时为 0，不可注释或删除
-f_diskremaining_MB=0	    # 剩余空间保证，单位是 MB，无限制时为 0，不可注释或删除
+p_mthbwcap=0		    # 每月流量上限，单位是 GB，默认为 0，即无限制；不可注释或删除本行
+f_diskremaining_MB=0	    # 剩余空间保证，单位是 MB，默认为 0，即无限制；不可注释或删除本行
 f_enable_bwm=		    # 启用客户端侧限速，默认关闭，开启时输入 on 或任意字符
 f_disable_logging=	    # 禁用日志，默认关闭，开启时输入 on 或任意字符
 f_use_less_memory=	    # 低内存模式，默认关闭，开启时输入 on 或任意字符
