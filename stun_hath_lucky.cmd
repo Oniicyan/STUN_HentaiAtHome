@@ -86,7 +86,7 @@ if NOT %ERRORLEVEL%==0 (
 
 :: 启动 H@H
 del .\log\log_out >nul 2>&1
-del %TEMP%\STUN_*
+del %TEMP%\STUN_*.bat
 start javaw -Xms16m -Xmx512m -jar HentaiAtHomeGUI.jar --silentstart
 timeout 120 /NOBREAK >nul
 findstr /C:"initialization completed successfully" .\log\log_out >nul 2>&1 &&^
