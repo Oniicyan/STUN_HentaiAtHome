@@ -92,7 +92,7 @@ OWNADDR=             # Lucky 不传递穿透通道本地地址，留空
 
 ### Windows 脚本
 
-下载并解压 stun_hath.zip 或 stun_hath_win32.zip 的内容到 H@H 所在目录
+下载并解压 **stun_hath.zip** 或 **stun_hath_win32.zip** 的内容到 H@H 所在目录
 
 Lucky 中添加以下自定义脚本，注意编辑变量
 
