@@ -2,6 +2,7 @@
 :: 建议自行指定，注意格式
 set PROXY=http://jpfhDg:qawsedrftgyhujikolp@hathproxy.ydns.eu:14913
 
+:: 由穿透工具传递参数，注意顺序
 set WANADDR=%1
 set WANPORT=%2
 set LANPORT=%3
