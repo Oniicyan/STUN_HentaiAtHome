@@ -128,8 +128,8 @@ Windows 脚本调试打开用户临时文件夹（`%TEMP%`），找到 `stun_hat
 # 获取失败时，手动填写信息
 # 以下 3 个为必须参数，需要填写
 f_cname=New+Client        # 客户端名称，空格换成 + 号
-f_throttle_KB=2500        # 上行带宽配额，单位是 KB
-f_disklimit_GB=10         # 磁盘空间配额，单位是 GB
+f_throttle_KB=25000       # 上行带宽配额，单位是 KB
+f_disklimit_GB=1000       # 磁盘空间配额，单位是 GB
 # 以下为可选参数
 p_mthbwcap=0            # 每月流量上限，单位是 GB，默认为 0，即无限制；不可注释或删除本行
 f_diskremaining_MB=0    # 剩余空间保证，单位是 MB，默认为 0，即无限制；不可注释或删除本行
