@@ -86,20 +86,22 @@ if NOT %ERRORLEVEL%==0 (
 
 :: 启动 H@H
 del .\log\log_out >nul 2>&1
-del %TEMP%\STUN_*.bat
 start javaw -Xms16m -Xmx512m -jar HentaiAtHomeGUI.jar --silentstart
-timeout 120 /NOBREAK >nul
-findstr /C:"initialization completed successfully" .\log\log_out >nul 2>&1 &&^
-echo HentaiAtHome ok. && exit 0
+timeout 60 /NOBREAK >nul
+findstr /C:"initialization completed successfully" .\log\log_out >nul 2>&1 && goto DONE
+timeout 60 /NOBREAK >nul
+findstr /C:"initialization completed successfully" .\log\log_out >nul 2>&1 && goto DONE
 timeout 30 /NOBREAK >nul
 curl -Ls -m 10 ^
 -x %PROXY% ^
 -b "ipb_member_id=%EHIPBID%; ipb_pass_hash=%EHIPBPW%" ^
 -o %TEMP%\hentaiathome.php ^
 "https://e-hentai.org/hentaiathome.php"
-findstr Online %TEMP%\hentaiathome.php >nul &&^
-echo HentaiAtHome ok. && exit 0
+findstr Online %TEMP%\hentaiathome.php >nul && goto DONE
 if %RETRY% GEQ 3 exit 1
 timeout 300 /NOBREAK >nul
 set /A RETRY=%RETRY%+1
 goto RETRY
+
+:DONE
+echo HentaiAtHome ok.
