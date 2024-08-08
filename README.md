@@ -8,6 +8,8 @@ Linux（特别是 OpenWrt，包括 WSL2）下通过 [NATMap](https://github.com/
 
 [详细说明](https://www.bilibili.com/read/cv35051332/)
 
+[Windows 脚本使用教程](https://www.bilibili.com/read/cv36825243/)
+
 ## Lucky
 
 使用 Lucky 进行穿透时，粘贴并正确编辑以下自定义脚本
@@ -87,3 +89,24 @@ OWNADDR=             # Lucky 不传递穿透通道本地地址，留空
 **请注意编辑脚本及输出文本的路径**
 
 打开输出文本 `debug.txt`，确认开头的每个变量是否正确，以及 `curl` 提交数据时内容是否对应穿透信息
+
+### Windows 脚本
+
+下载并解压 stun_hath.zip 或 stun_hath_win32.zip 的内容到 H@H 所在目录
+
+Lucky 中添加以下自定义脚本，注意编辑变量
+
+```
+set LANPORT=12345
+set HATHDIR=D:\HentaiAtHome
+set HATHCID=12345
+set EHIPBID=1234567
+set EHIPBPW=0123456789abcdef0123456789abcdef
+
+set OUTPUT=%TEMP%\stun_hath.%RANDOM%%RANDOM%
+echo createobject^("wscript.shell"^).run "%HATHDIR%\stun_hath.cmd ${ip} ${port} %LANPORT% %HATHDIR% %HATHCID% %EHIPBID% %EHIPBPW% >%OUTPUT%",0 >%TEMP%\stun_hath.vbs
+%TEMP%\stun_hath.vbs
+echo %OUTPUT%
+```
+
+Windows 脚本调试打开用户临时文件夹（`%TEMP%`），找到 `stun_hath.12345678`
