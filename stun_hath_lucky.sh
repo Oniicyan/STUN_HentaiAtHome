@@ -42,7 +42,6 @@ curl -Ls -m 10 \
 -x $PROXY \
 -b 'ipb_member_id='$EHIPBID'; ipb_pass_hash='$EHIPBPW'' \
 -o $TEMPPHP \
--d 'settings=1' \
 'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
 f_cname=$(grep f_cname $TEMPPHP | awk -F '"' '{print$6}' | sed 's/[ ]/+/g')
 f_throttle_KB=$(grep f_throttle_KB $TEMPPHP | awk -F '"' '{print$6}')
