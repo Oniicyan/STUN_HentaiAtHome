@@ -98,6 +98,8 @@ OWNADDR=             # Lucky 不传递穿透通道本地地址，留空
 
 下载并解压 **stun_hath.zip** 或 **stun_hath_win32.zip** 的内容到 H@H 所在目录
 
+也可自行下载 [handle.exe](https://learn.microsoft.com/en-us/sysinternals/downloads/handle)、[windows-kill.exe](https://github.com/ElyDotDev/windows-kill)、[upnpc.exe](https://github.com/miniupnp/miniupnp)、[stun_hath.cmd](https://github.com/Oniicyan/STUN_HentaiAtHome/blob/main/stun_hath.cmd)
+
 Lucky 中添加以下自定义脚本，注意编辑变量
 
 ```
