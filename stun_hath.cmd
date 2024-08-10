@@ -10,10 +10,17 @@ set HATHDIR=%4
 set HATHCID=%5
 set EHIPBID=%6
 set EHIPBPW=%7
+set BATCHID=%8
 
 cd /D %HATHDIR%
 set RETRY=0
 setlocal enabledelayedexpansion
+
+:: 防止脚本重复执行
+set MATCH="CommandLine like '%%%~0%%' and Not CommandLine like '%%%BATCHID%%%'"
+for /F %%a in ('wmic process where %MATCH:\=\\% get ProcessId') do (
+	echo %%a| findstr "^[0-9]*$" >nul && taskkill /PID %%a
+)
 
 :: 获取上次穿透的时间戳
 set OLDPORT=0
@@ -87,7 +94,10 @@ if NOT %ERRORLEVEL%==0 (
 
 :: 启动 H@H
 del .\log\log_out >nul 2>&1
-start javaw -Xms16m -Xmx512m -jar HentaiAtHomeGUI.jar --silentstart
+runas /trustlevel:0x20000 "javaw -Xms16m -Xmx512m -jar HentaiAtHomeGUI.jar --silentstart"
+:: Windows 11 22H2 及部分版本 runas 存在 Bug，需指定 /machine
+:: 若提示计算机类型不匹配，请自行修改为 x86
+if NOT %ERRORLEVEL%==0 (runas /trustlevel:0x20000 /machine:amd64 "javaw -Xms16m -Xmx512m -jar HentaiAtHomeGUI.jar --silentstart")
 timeout 60 /NOBREAK >nul
 findstr /C:"initialization completed successfully" .\log\log_out >nul 2>&1 && goto DONE
 timeout 60 /NOBREAK >nul
@@ -96,9 +106,9 @@ timeout 30 /NOBREAK >nul
 curl -Ls -m 10 ^
 -x %PROXY% ^
 -b "ipb_member_id=%EHIPBID%; ipb_pass_hash=%EHIPBPW%" ^
--o %TEMP%\hentaiathome.php ^
+-o %TEMP%\hentaiathome.%BATCHID%.php ^
 "https://e-hentai.org/hentaiathome.php"
-findstr Online %TEMP%\hentaiathome.php >nul && goto DONE
+findstr Online %TEMP%\hentaiathome.%BATCHID%.php >nul && goto DONE
 if %RETRY% GEQ 3 exit 1
 timeout 300 /NOBREAK >nul
 set /A RETRY=%RETRY%+1
