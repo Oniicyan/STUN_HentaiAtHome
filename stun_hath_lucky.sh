@@ -43,6 +43,7 @@ while [ -z "$f_cname" ]; do
   		echo Failed to get information. Please check PROXY. >&2
     		echo Exit... >&2 && exit 1
 	fi
+ 	[ $GET -ne 1 ] && sleep 15
 	TEMPPHP=$(mktemp)
 	curl -Ls -m 10 \
 	-x $PROXY \
