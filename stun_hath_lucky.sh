@@ -83,10 +83,10 @@ curl -Ls -m 10 \
 -d ''$DATA'' \
 'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
 if [ "$(grep f_port $POSTPHP | awk -F '"' '{print$6}')" = $WANPORT ]; then
+	mv $POSTPHP /tmp/$OWNNAME.php
+else
 	echo Failed to get response. Please check PROXY. >&2
 	echo Still continue... >&2
-else
-	mv $POSTPHP /tmp/$OWNNAME.php
 fi
 
 # 若 H@H 运行在主路由上，则添加 DNAT 规则
