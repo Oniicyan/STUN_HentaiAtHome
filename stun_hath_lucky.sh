@@ -25,7 +25,7 @@ OLDDATE=$(awk '{print$NF}' $HATHDIR/$OWNNAME.info 2>/dev/null)
 # 防止脚本重复运行
 PIDNF=$( ( ps aux 2>/dev/null; ps ) | awk '{for(i=1;i<=NF;i++)if($i=="PID")n=i}NR==1{print n}' )
 while :; do
-  ( ps aux 2>/dev/null; ps ) | grep $0 | grep -v -e "$$\|grep" | awk 'NR==1{print$'$PIDNF'}' | xargs kill >/dev/null 2>&1 || break
+	( ps aux 2>/dev/null; ps ) | grep $0 | grep -v -e "$$\|grep" | awk 'NR==1{print$'$PIDNF'}' | xargs kill >/dev/null 2>&1 || break
 done
 
 # 保存穿透信息
@@ -37,21 +37,33 @@ echo $(date) $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT >>$HATHDIR/$OWNNA
 [ $(($(date +%s) - $OLDDATE)) -lt 30 ] && sleep 30
 
 # 获取 H@H 设置信息
-TEMPPHP=$(mktemp)
-curl -Ls -m 10 \
--x $PROXY \
--b 'ipb_member_id='$EHIPBID'; ipb_pass_hash='$EHIPBPW'' \
--o $TEMPPHP \
-'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
-f_cname=$(grep f_cname $TEMPPHP | awk -F '"' '{print$6}' | sed 's/[ ]/+/g')
-f_throttle_KB=$(grep f_throttle_KB $TEMPPHP | awk -F '"' '{print$6}')
-f_disklimit_GB=$(grep f_disklimit_GB $TEMPPHP | awk -F '"' '{print$6}')
-p_mthbwcap=$(grep p_mthbwcap $TEMPPHP | awk -F '"' '{print$6}')
-f_diskremaining_MB=$(grep f_diskremaining_MB $TEMPPHP | awk -F '"' '{print$6}')
-f_enable_bwm=$(grep f_enable_bwm $TEMPPHP | grep checked)
-f_disable_logging=$(grep f_disable_logging $TEMPPHP | grep checked)
-f_use_less_memory=$(grep f_use_less_memory $TEMPPHP | grep checked)
-f_is_hathdler=$(grep f_is_hathdler $TEMPPHP | grep checked)
+while [ -z "$f_cname" ]; do
+	let GET++
+ 	if [ $GET -gt 3 ]; then
+  		echo Failed to get information. Please check PROXY. >&2
+    		echo Exit... >&2 && exit 1
+	fi
+	TEMPPHP=$(mktemp)
+	curl -Ls -m 10 \
+	-x $PROXY \
+	-b 'ipb_member_id='$EHIPBID'; ipb_pass_hash='$EHIPBPW'' \
+	-o $TEMPPHP \
+	'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
+	f_cname=$(grep f_cname $TEMPPHP | awk -F '"' '{print$6}' | sed 's/[ ]/+/g')
+	f_throttle_KB=$(grep f_throttle_KB $TEMPPHP | awk -F '"' '{print$6}')
+	f_disklimit_GB=$(grep f_disklimit_GB $TEMPPHP | awk -F '"' '{print$6}')
+	p_mthbwcap=$(grep p_mthbwcap $TEMPPHP | awk -F '"' '{print$6}')
+	f_diskremaining_MB=$(grep f_diskremaining_MB $TEMPPHP | awk -F '"' '{print$6}')
+	f_enable_bwm=$(grep f_enable_bwm $TEMPPHP | grep checked)
+	f_disable_logging=$(grep f_disable_logging $TEMPPHP | grep checked)
+	f_use_less_memory=$(grep f_use_less_memory $TEMPPHP | grep checked)
+	f_is_hathdler=$(grep f_is_hathdler $TEMPPHP | grep checked)
+ 	rm $TEMPPHP
+}
+if [ -z "$f_cname" ]; then
+	let GET++
+ 	if [ $GET -ge 3 ]; then
+fi
 
 # 停止 H@H，等待 30 秒
 if [ "$(screen -list | grep $OWNNAME)" ]; then
@@ -76,6 +88,7 @@ curl -Ls -m 10 \
 'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
 [ "$(grep f_port $POSTPHP | awk -F '"' '{print$6}')" = $WANPORT ] || \
 echo Failed to get response. Please check PROXY. >&2
+echo Still continue... >&2
 mv $POSTPHP /tmp/$OWNNAME.php
 
 # 若 H@H 运行在主路由上，则添加 DNAT 规则
