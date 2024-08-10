@@ -59,11 +59,7 @@ while [ -z "$f_cname" ]; do
 	f_use_less_memory=$(grep f_use_less_memory $TEMPPHP | grep checked)
 	f_is_hathdler=$(grep f_is_hathdler $TEMPPHP | grep checked)
  	rm $TEMPPHP
-}
-if [ -z "$f_cname" ]; then
-	let GET++
- 	if [ $GET -ge 3 ]; then
-fi
+done
 
 # 停止 H@H，等待 30 秒
 if [ "$(screen -list | grep $OWNNAME)" ]; then
