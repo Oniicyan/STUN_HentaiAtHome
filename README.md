@@ -1,6 +1,6 @@
 ## 介绍
 
-Linux（特别是 OpenWrt，包括 WSL2）下通过 [NATMap](https://github.com/heiher/natmap) 进行内网穿透后，调用通知脚本修改端口设置并运行 [H@H](https://ehwiki.org/wiki/Hentai@Home) 客户端
+Linux（特别是 OpenWrt，包括 WSL2）下通过 [NATMap](https://github.com/heiher/natmap) 或 [Lucky](https://lucky666.cn/) 进行内网穿透后，调用通知脚本修改端口设置并运行 [H@H](https://ehwiki.org/wiki/Hentai@Home) 客户端
 
 需要安装 [curl](https://curl.se/) 与 [screen](https://www.gnu.org/software/screen/)，以及 [JRE](https://docs.oracle.com/goldengate/1212/gg-winux/GDRAD/java.htm)
 
