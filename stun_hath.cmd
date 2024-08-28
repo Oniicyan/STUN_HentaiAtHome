@@ -60,7 +60,7 @@ for /F tokens^=6^ delims^=^" %%a in ('findstr p_mthbwcap stun_hath.php') do (set
 for /F tokens^=6^ delims^=^" %%a in ('findstr f_diskremaining_MB stun_hath.php') do (set f_diskremaining_MB=%%a)
 
 :: 检测是否获取成功
-findstr Miscellaneous stun_hath.php >nul || (
+findstr Miscellaneous stun_hath.php >nul ||(
 if %GETRY% GEQ 3 exit 1
 timeout 5 /NOBREAK >nul
 set /A GETRY=%GETRY%+1
