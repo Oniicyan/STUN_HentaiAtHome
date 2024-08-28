@@ -59,6 +59,14 @@ for /F tokens^=6^ delims^=^" %%a in ('findstr f_disklimit_GB stun_hath.php') do 
 for /F tokens^=6^ delims^=^" %%a in ('findstr p_mthbwcap stun_hath.php') do (set p_mthbwcap=%%a)
 for /F tokens^=6^ delims^=^" %%a in ('findstr f_diskremaining_MB stun_hath.php') do (set f_diskremaining_MB=%%a)
 
+:: 检测是否获取成功
+findstr Miscellaneous stun_hath.php >nul || (
+if %GETRY% GEQ 3 exit 1
+timeout 5 /NOBREAK >nul
+set /A GETRY=%GETRY%+1
+goto RETRY
+)
+
 :: 停止 H@H，等待 30 秒
 for /F "tokens=3" %%a in ('handle.exe -nobanner -accepteula %HATHDIR%\HentaiAtHomeGUI.jar') do (
 	echo createobject^("wscript.shell"^).run "%HATHDIR%\windows-kill.exe -SIGINT %%a",0 >%TEMP%\windows-kill.vbs
