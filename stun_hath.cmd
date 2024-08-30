@@ -13,6 +13,7 @@ set EHIPBPW=%7
 set BATCHID=%8
 
 cd /D %HATHDIR%
+set GETRY=0
 set RETRY=0
 setlocal enabledelayedexpansion
 
