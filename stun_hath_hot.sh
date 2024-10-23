@@ -74,12 +74,10 @@ SETDNAT() {
 		uci -q delete firewall.stun_foo && RELOAD=1
 		uci -q delete firewall.$OWNNAME && RELOAD=1
 		if uci show firewall | grep =redirect >/dev/null; then
-			i=0
 			for CONFIG in $(uci show firewall | grep =redirect | awk -F = '{print$1}'); do
-				[ "$(uci -q get $CONFIG.enabled)" = 0 ] && let i++ && break
-				[ "$(uci -q get $CONFIG.src)" != "wan" ] && let i++
+				[ "$(uci -q get $CONFIG.src)" = "wan" ] && [ "$(uci -q get $CONFIG.enabled)" != 0 ] && \
+				RULE=1 && break
 			done
-			[ $(uci show firewall | grep =redirect | wc -l) -gt $i ] && RULE=1
 		fi
 		if [ "$RULE" != 1 ]; then
 			uci set firewall.stun_foo=redirect
