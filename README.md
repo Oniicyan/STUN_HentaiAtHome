@@ -6,6 +6,8 @@ Linux（特别是 OpenWrt，包括 WSL2）下通过 [NATMap](https://github.com/
 
 运行在非主路由时，还需要安装 [miniupnpc](http://miniupnp.free.fr/)
 
+热更新脚本还需要安装 coreutils-sha1sum
+
 [详细说明](https://www.bilibili.com/read/cv35051332/)
 
 [Windows 脚本使用教程](https://www.bilibili.com/read/cv36825243/)
