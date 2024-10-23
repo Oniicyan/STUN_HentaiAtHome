@@ -1,14 +1,14 @@
 # 以下变量需按要求填写
 PROXY='socks5://192.168.1.168:10808'		# 可用的代理协议、地址与端口；留空则不使用代理
-IFNAME=										# 指定接口，可留空；仅在多 WAN 时需要；拨号接口的格式为 "pppoe-wancm"
-GWLADDR=192.168.1.1							# 主路由 LAN 的 IPv4 地址
-APPADDR=192.168.1.168						# H@H 客户端运行设备的 IPv4 地址，可以是主路由本身
-APPPORT=44388								# H@H 客户端的监听端口，对应 --port= 参数
-HATHCID=12345								# H@H 客户端 ID (Client ID)
-HATHKEY=12345abcde12345ABCDE				# H@H 客户端密钥 (Client Key)
-EHIPBID=1234567								# ipb_member_id
+IFNAME=						# 指定接口，可留空；仅在多 WAN 时需要；拨号接口的格式为 "pppoe-wancm"
+GWLADDR=192.168.1.1				# 主路由 LAN 的 IPv4 地址
+APPADDR=192.168.1.168				# H@H 客户端运行设备的 IPv4 地址，可以是主路由本身
+APPPORT=44388					# H@H 客户端的监听端口，对应 --port= 参数
+HATHCID=12345					# H@H 客户端 ID (Client ID)
+HATHKEY=12345abcde12345ABCDE			# H@H 客户端密钥 (Client Key)
+EHIPBID=1234567					# ipb_member_id
 EHIPBPW=0123456789abcdef0123456789abcdef	# ipb_pass_hash
-INFODIR=/tmp								# 穿透信息保存目录，默认为 /tmp
+INFODIR=/tmp					# 穿透信息保存目录，默认为 /tmp
 
 WANADDR=$1
 WANPORT=$2
