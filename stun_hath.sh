@@ -91,7 +91,7 @@ SETDNAT() {
 	fi
 	DNAT=1
 }
-for LANADDR in $(ip -4 a| grep inet | awk '{print$2}' | awk -F '/' '{print$1}'); do
+for LANADDR in $(ip -4 a | grep inet | awk '{print$2}' | awk -F '/' '{print$1}'); do
 	[ "$DNAT" = 1 ] && break
 	[ "$LANADDR" = $GWLADDR ] && SETDNAT
 done
@@ -101,12 +101,28 @@ for LANADDR in $(nslookup -type=A $HOSTNAME | grep Address | grep -v -e ':\d' | 
 done
 
 # 若 H@H 运行在主路由下，则通过 UPnP 请求规则
-if [ "$DNAT" != 1 ]; then
+# 先尝试直连 UPnP
+if [ -z "$DNAT" ]; then
 	nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
 	iptables -t nat $(iptables-save 2>/dev/null | grep $OWNNAME | sed 's/-A/-D/') 2>/dev/null
 	[ "$RELEASE" = "openwrt" ] && uci -q delete firewall.$OWNNAME
-	upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$APPPORT" -a @ $APPPORT $LANPORT tcp >/dev/null 2>&1 &
+	upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$APPPORT" -a $APPADDR $APPPORT $LANPORT tcp | \
+	grep $APPADDR | grep $APPPORT | grep $LANPORT | grep -v failed >/dev/null
+	[ $? = 0 ] && DNAT=2
 fi
+
+# 直连失败，则尝试代理 UPnP
+if [ -z "$DNAT" ]; then
+	PROXYCONF=/tmp/proxychains.conf
+	echo [ProxyList] >$PROXYCONF
+	echo http $APPADDR 3128 >>$PROXYCONF
+	upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$APPPORT" -a $APPADDR $APPPORT $LANPORT tcp | \
+	grep $APPADDR | grep $APPPORT | grep $LANPORT | grep -v failed >/dev/null
+	[ $? = 0 ] && DNAT=3
+fi
+
+# 代理失败，则启用本机 UPnP
+[ -z "$DNAT" ] && (upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$APPPORT" -a @ $APPPORT $LANPORT tcp >/dev/null 2>&1; SETDNAT)
 
 # 获取 H@H 设置信息
 while [ -z "$f_cname" ]; do
@@ -171,11 +187,11 @@ while :; do
 	ACTION client_settings | grep port=$WANPORT >/dev/null && break
 done
 
-# 发送 client_resume 后，直接退出
+# 发送 client_start 后，直接退出
 # 若客户端已启动，将在下次 Check-In 时恢复连接，无需重启
-# 若客户端未启动，client_suspend 与 client_resume 不会有任何实质影响
+# 若客户端未启动，client_suspend 与 client_start 不会有任何实质影响
 # 本脚本不启动 H@H 客户端，请在首次穿透后，自行在运行设备上启动
 # 启动命令末尾加上参数 --port=44388，固定内部监听端口
-ACTION client_resume >/dev/null &
+ACTION client_start >/dev/null &
 
 echo -n $OWNNAME: The external port is updated successfully.
