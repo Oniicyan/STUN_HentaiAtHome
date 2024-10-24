@@ -105,14 +105,14 @@ if [ "$DNAT" != 1 ]; then
 	nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
 	iptables -t nat $(iptables-save | grep $OWNNAME | sed 's/-A/-D/') 2>/dev/null
 	[ "$RELEASE" = "openwrt" ] && uci -q delete firewall.$OWNNAME
-	upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$APPPORT" -a @ $APPPORT $LANPORT tcp
+	upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$APPPORT" -a @ $APPPORT $LANPORT tcp >/dev/null 2>&1 &
 fi
 
 # 获取 H@H 设置信息
 while [ -z "$f_cname" ]; do
 	let GET++
  	if [ $GET -gt 3 ]; then
-  		echo $OWNNAME: Failed to get settings. Please check the PROXY. >&2
+  		echo -n $OWNNAME: Failed to get settings. Please check the PROXY. >&2
     	exit 1
 	fi
  	[ $GET -ne 1 ] && sleep 15
@@ -135,7 +135,7 @@ done
 
 # 若外部端口未变，则退出
 [ "$(grep f_port $HATHPHP | awk -F '"' '{print$6}')" = $WANPORT ] && \
-echo $OWNNAME: The external port has not changed. >&2 && exit 0
+echo -n $OWNNAME: The external port has not changed. >&2 && exit 0
 
 # 定义与 RPC 服务器交互的函数
 # 访问 http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act=server_stat 查询当前支持的 client_build
@@ -146,13 +146,13 @@ ACTION() {
 	curl -Ls "http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act=$ACT&add=&cid=$HATHCID&acttime=$ACTTIME&actkey=$ACTKEY"
 }
 
-# 发送停止请求后，更新端口信息
-# 更新后，发送登录请求验证端口
-ACTION client_stop >/dev/null
+# 发送 client_suspend 后，更新端口信息
+# 更新后，发送 client_login 验证端口
+ACTION client_suspend >/dev/null
 while :; do
 	let SET++
  	if [ $SET -gt 3 ]; then
-  		echo $OWNNAME: Failed to update port. Please check the PROXY. >&2
+  		echo -n $OWNNAME: Failed to update port. Please check the PROXY. >&2
     	exit 1
 	fi
 	[ $SET -ne 1 ] && sleep 15
@@ -168,11 +168,14 @@ while :; do
 	-o $HATHPHP \
 	-d ''$DATA'' \
 	'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
-	ACTION client_login | grep port=$WANPORT >/dev/null && break
+	ACTION client_settings | grep port=$WANPORT >/dev/null && break
 done
 
-# 发送启动请求后，直接退出
-# 启动请求脱离客户端，不校验启动状态
-# 请在运行设备上自行启动；启动命令末尾加上 --port=44388，固定内部监听端口
+# 发送 client_resume 后，直接退出
 # 若客户端已启动，将在下次 Check-In 时恢复连接，无需重启
-ACTION client_start >/dev/null &
+# 若客户端未启动，client_suspend 与 client_resume 不会有任何实质影响
+# 本脚本不启动 H@H 客户端，请在首次穿透后，自行在运行设备上启动
+# 启动命令末尾加上参数 --port=44388，固定内部监听端口
+ACTION client_resume >/dev/null &
+
+echo -n $OWNNAME: The external port is updated successfully.
