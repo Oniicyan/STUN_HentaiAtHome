@@ -1,6 +1,6 @@
 # 以下变量需按要求填写
 PROXY=socks5://192.168.1.168:10808		# 可用的代理协议、地址与端口；留空则不使用代理
-IFNAME=						# 指定接口，默认留空；仅在多 WAN 时需要；拨号接口的格式为 "pppoe-wancm"
+IFNAME=						# 指定接口，默认留空；仅多 WAN 时需要，仅 AUTONAT=1 时生效；拨号接口的格式为 "pppoe-wancm"
 AUTONAT=1					# 默认由脚本自动配置 DNAT；0 为手动配置，需要固定本地端口 (LANPORT)
 GWLADDR=192.168.1.1				# 主路由 LAN 的 IPv4 地址
 APPADDR=192.168.1.168				# H@H 客户端运行设备的 IPv4 地址，可以是主路由本身
