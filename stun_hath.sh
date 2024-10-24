@@ -38,7 +38,7 @@ echo $(date) $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT >>$INFODIR/$OWNNA
 SETDNAT() {
 	nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
 	iptables -t nat $(iptables-save 2>/dev/null | grep $OWNNAME | sed 's/-A/-D/') 2>/dev/null
-	if [ "$RELEASE" = "openwrt" ] && [ -z "$IFNAME" ]; then
+	if [ "$RELEASE" = "openwrt" ] && [ -z $IFNAME ]; then
 		nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
 		uci -q delete firewall.stun_foo
 		uci -q delete firewall.$OWNNAME
@@ -105,7 +105,7 @@ fi
 
 # 若 H@H 运行在主路由下，则通过 UPnP 请求规则
 # 先尝试直连 UPnP
-if [ "$AUTONAT" = 1 ] && [ -z "$DNAT" ]; then
+if [ "$AUTONAT" = 1 ] && [ -z $DNAT ]; then
 	nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
 	iptables -t nat $(iptables-save 2>/dev/null | grep $OWNNAME | sed 's/-A/-D/') 2>/dev/null
 	[ "$RELEASE" = "openwrt" ] && uci -q delete firewall.$OWNNAME
@@ -115,7 +115,7 @@ if [ "$AUTONAT" = 1 ] && [ -z "$DNAT" ]; then
 fi
 
 # 直连失败，则尝试代理 UPnP
-if [ "$AUTONAT" = 1 ] && [ -z "$DNAT" ]; then
+if [ "$AUTONAT" = 1 ] && [ -z $DNAT ]; then
 	PROXYCONF=/tmp/proxychains.conf
 	echo [ProxyList] >$PROXYCONF
 	echo http $APPADDR 3128 >>$PROXYCONF
@@ -126,10 +126,10 @@ if [ "$AUTONAT" = 1 ] && [ -z "$DNAT" ]; then
 fi
 
 # 代理失败，则启用本机 UPnP
-[ "$AUTONAT" = 1 ] && [ -z "$DNAT" ] && (upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$APPPORT" -a @ $APPPORT $LANPORT tcp >/dev/null 2>&1; SETDNAT)
+[ "$AUTONAT" = 1 ] && [ -z $DNAT ] && (upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$APPPORT" -a @ $APPPORT $LANPORT tcp >/dev/null 2>&1; SETDNAT)
 
 # 获取 H@H 设置信息
-while [ -z "$f_cname" ]; do
+while [ -z $f_cname ]; do
 	let GET++
  	if [ $GET -gt 3 ]; then
   		echo -n $OWNNAME: Failed to get settings. Please check the PROXY. >&2
