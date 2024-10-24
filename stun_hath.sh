@@ -1,6 +1,7 @@
 # 以下变量需按要求填写
 PROXY=socks5://192.168.1.168:10808		# 可用的代理协议、地址与端口；留空则不使用代理
 IFNAME=						# 指定接口，默认留空；仅在多 WAN 时需要；拨号接口的格式为 "pppoe-wancm"
+AUTONAT=1					# 默认由脚本自动配置 DNAT；改为 0 手动配置，需要固定本地端口 (LANPORT)
 GWLADDR=192.168.1.1				# 主路由 LAN 的 IPv4 地址
 APPADDR=192.168.1.168				# H@H 客户端运行设备的 IPv4 地址，可以是主路由本身
 APPPORT=44388					# H@H 客户端的监听端口，对应 --port= 参数
@@ -91,18 +92,20 @@ SETDNAT() {
 	fi
 	DNAT=1
 }
-for LANADDR in $(ip -4 a | grep inet | awk '{print$2}' | awk -F '/' '{print$1}'); do
-	[ "$DNAT" = 1 ] && break
-	[ "$LANADDR" = $GWLADDR ] && SETDNAT
-done
-for LANADDR in $(nslookup -type=A $HOSTNAME | grep Address | grep -v -e ':\d' | awk '{print$2}'); do
-	[ "$DNAT" = 1 ] && break
-	[ "$LANADDR" = $GWLADDR ] && SETDNAT
-done
+if [ "$AUTONAT" = 1 ]; then
+	for LANADDR in $(ip -4 a | grep inet | awk '{print$2}' | awk -F '/' '{print$1}'); do
+		[ "$DNAT" = 1 ] && break
+		[ "$LANADDR" = $GWLADDR ] && SETDNAT
+	done
+	for LANADDR in $(nslookup -type=A $HOSTNAME | grep Address | grep -v -e ':\d' | awk '{print$2}'); do
+		[ "$DNAT" = 1 ] && break
+		[ "$LANADDR" = $GWLADDR ] && SETDNAT
+	done
+fi
 
 # 若 H@H 运行在主路由下，则通过 UPnP 请求规则
 # 先尝试直连 UPnP
-if [ -z "$DNAT" ]; then
+if [ "$AUTONAT" = 1 ] && [ -z "$DNAT" ]; then
 	nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
 	iptables -t nat $(iptables-save 2>/dev/null | grep $OWNNAME | sed 's/-A/-D/') 2>/dev/null
 	[ "$RELEASE" = "openwrt" ] && uci -q delete firewall.$OWNNAME
@@ -112,18 +115,18 @@ if [ -z "$DNAT" ]; then
 fi
 
 # 直连失败，则尝试代理 UPnP
-if [ -z "$DNAT" ]; then
+if [ "$AUTONAT" = 1 ] && [ -z "$DNAT" ]; then
 	PROXYCONF=/tmp/proxychains.conf
 	echo [ProxyList] >$PROXYCONF
 	echo http $APPADDR 3128 >>$PROXYCONF
- 	proxychains -f $PROXYCONF \
+	proxychains -f $PROXYCONF \
 	upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$APPPORT" -a $APPADDR $APPPORT $LANPORT tcp | \
 	grep $APPADDR | grep $APPPORT | grep $LANPORT | grep -v failed >/dev/null
 	[ $? = 0 ] && DNAT=3
 fi
 
 # 代理失败，则启用本机 UPnP
-[ -z "$DNAT" ] && (upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$APPPORT" -a @ $APPPORT $LANPORT tcp >/dev/null 2>&1; SETDNAT)
+[ "$AUTONAT" = 1 ] && [ -z "$DNAT" ] && (upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$APPPORT" -a @ $APPPORT $LANPORT tcp >/dev/null 2>&1; SETDNAT)
 
 # 获取 H@H 设置信息
 while [ -z "$f_cname" ]; do
