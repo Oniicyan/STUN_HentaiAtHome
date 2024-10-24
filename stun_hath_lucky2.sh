@@ -24,7 +24,7 @@ fi
 OWNNAME=$(echo stun_hath_${APPADDR}_${APPPORT}$([ -n "$IFNAME" ] && echo @$IFNAME) | sed 's/[[:punct:]]/_/g')
 RELEASE=$(grep ^ID= /etc/os-release | awk -F '=' '{print$2}' | tr -d \")
 
-[ -n "$PROXY" ] && PROXY=$(echo -x $PROXY)
+[ -n "$PROXY" ] && PROXY=$(echo "-x $PROXY")
 
 # 防止脚本重复运行
 PIDNF=$( ( ps aux 2>/dev/null; ps ) | awk '{for(i=1;i<=NF;i++)if($i=="PID")n=i}NR==1{print n}' )
