@@ -116,6 +116,7 @@ if [ -z "$DNAT" ]; then
 	PROXYCONF=/tmp/proxychains.conf
 	echo [ProxyList] >$PROXYCONF
 	echo http $APPADDR 3128 >>$PROXYCONF
+ 	proxychains -f $PROXYCONF \
 	upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$APPPORT" -a $APPADDR $APPPORT $LANPORT tcp | \
 	grep $APPADDR | grep $APPPORT | grep $LANPORT | grep -v failed >/dev/null
 	[ $? = 0 ] && DNAT=3
