@@ -188,11 +188,14 @@ while :; do
 	ACTION client_settings | grep port=$WANPORT >/dev/null && break
 done
 
-# 发送 client_start 后，直接退出
+# 发送 client_start 后，校验响应消息
 # 若客户端已启动，将在下次 Check-In 时恢复连接，无需重启
 # 若客户端未启动，client_suspend 与 client_start 不会有任何实质影响
 # 本脚本不启动 H@H 客户端，请在首次穿透后，自行在运行设备上启动
 # 启动命令末尾加上参数 --port=44388，固定内部监听端口
-ACTION client_start >/dev/null &
-
-echo -n $OWNNAME: The external port is updated successfully.
+RESP=$(ACTION client_start | head -1)
+if [[ "$RESP" == "OK" ]]; then
+	echo -n $OWNNAME: The external port is updated successfully.
+else
+	echo -n $RESP
+fi
