@@ -36,7 +36,7 @@ echo $(date) $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT >>$INFODIR/$OWNNA
 # 其他情况使用 nft，并检测是否需要填充 uci
 SETDNAT() {
 	nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
-	iptables -t nat $(iptables-save | grep $OWNNAME | sed 's/-A/-D/') 2>/dev/null
+	iptables -t nat $(iptables-save 2>/dev/null | grep $OWNNAME | sed 's/-A/-D/') 2>/dev/null
 	if [ "$RELEASE" = "openwrt" ] && [ -z "$IFNAME" ]; then
 		nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
 		uci -q delete firewall.stun_foo
@@ -103,7 +103,7 @@ done
 # 若 H@H 运行在主路由下，则通过 UPnP 请求规则
 if [ "$DNAT" != 1 ]; then
 	nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
-	iptables -t nat $(iptables-save | grep $OWNNAME | sed 's/-A/-D/') 2>/dev/null
+	iptables -t nat $(iptables-save 2>/dev/null | grep $OWNNAME | sed 's/-A/-D/') 2>/dev/null
 	[ "$RELEASE" = "openwrt" ] && uci -q delete firewall.$OWNNAME
 	upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$APPPORT" -a @ $APPPORT $LANPORT tcp >/dev/null 2>&1 &
 fi
