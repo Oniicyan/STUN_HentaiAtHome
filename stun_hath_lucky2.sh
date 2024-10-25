@@ -7,7 +7,7 @@ OWNADDR=	# Lucky 不传递穿透通道本地地址，留空
 
 GWLADDR=$4	# 主路由 LAN 的 IPv4 地址
 APPADDR=$5	# H@H 客户端运行设备的 IPv4 地址，可以是主路由本身
-APPPORT=$6	# H@H 客户端的监听端口，对应启动参数 --port=<port>
+APPPORT=$6	# H@H 客户端的本地监听端口，对应启动参数 --port=<port>
 HATHCID=$7	# H@H 客户端 ID (Client ID)
 HATHKEY=$8	# H@H 客户端密钥 (Client Key)
 EHIPBID=$9	# ipb_member_id
