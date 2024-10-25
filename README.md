@@ -1,144 +1,164 @@
-## 介绍
+# 介绍
 
-Linux（特别是 OpenWrt，包括 WSL2）下通过 [NATMap](https://github.com/heiher/natmap) 或 [Lucky](https://lucky666.cn/) 进行内网穿透后，调用通知脚本修改端口设置并运行 [H@H](https://ehwiki.org/wiki/Hentai@Home) 客户端
+Linux（特别是 OpenWrt，包括 WSL2）下通过 [NATMap](https://github.com/heiher/natmap) 或 [Lucky](https://lucky666.cn/) 进行内网穿透后，调用通知脚本修改 [H@H](https://ehwiki.org/wiki/Hentai@Home) 客户端的公网端口
 
-需要安装 [curl](https://curl.se/) 与 [screen](https://www.gnu.org/software/screen/)，以及 [JRE](https://docs.oracle.com/goldengate/1212/gg-winux/GDRAD/java.htm)
+需要安装 [curl](https://curl.se/) 与 OpenWrt 下需要安装 `coreutils-sha1sum`
 
 运行在非主路由时，还需要安装 [miniupnpc](http://miniupnp.free.fr/)
 
-热更新脚本还需要安装 coreutils-sha1sum
+主路由 UPnP 开启安全模式时，需要安装 proxychains (proxychains-ng/proxychains4)，并在运行设备上启用代理服务器，推荐 [3proxy](https://3proxy.ru/) 或 [GOST](https://gost.run/)
 
-[详细说明](https://www.bilibili.com/read/cv35051332/)
+[详细说明](https://www.bilibili.com/read/cv35051332/)（内容已过时）
 
 [Windows 脚本使用教程](https://www.bilibili.com/read/cv36825243/)
 
-## Lucky
+## 注意事项
 
-使用 Lucky 进行穿透时，粘贴并正确编辑以下自定义脚本
+**通知脚本与 H@H 客户端脱离**，可运行在同一设备上，也可运行在不同的设备上
 
-### 网络脚本
+**通知脚本不启动 H@H 客户端**，请自行在运行设备上启动
 
-在自定义命令中，通过网络获取在线获取脚本并传递参数执行
+启动命令末尾加上参数 `--port=44388`，指定客户端的本地监听端口
+
+**通知脚本更新端口后，无需重启客户端**
+
+但需要注意的是，必须在首次穿透成功后再启动 H@H 客户端，否则无法完成初始化，客户端将拒绝连接请求
+
+# 准备工作
+
+## 获取账号 Cookie
+
+登录 E-Hentai 后，按 `F12` 打开浏览器开发人员工具，抓取网络通信
+
+在 E-Hentai 的任意页面按 `Ctrl + R` 键刷新，点击捕获到的请求并下拉
+
+从 `Cookie` 项目中复制 `ipb_member_id` 与 `ipb_pass_hash`
+
+![图片](https://github.com/user-attachments/assets/a9e29f06-1d18-4768-97b5-a2cf2e842c9d)
+
+---
+
+## 获取 H@H 的 ID 与密钥
+
+打开 https://e-hentai.org/hentaiathome.php 点击你申请到的 H@H 客户端详情
+
+记下在顶部显示的 `Client ID` 与 `Client Key`
+
+![图片](https://github.com/user-attachments/assets/ebf88a7b-a639-456c-a95a-d2dabbeb210d)
+
+# 安装软件
+
+## OpenWrt
 
 ```
-LANPORT=12345        # 穿透通道本地端口
-GWLADDR=192.168.1.1  # 主路由 LAN 的 IPv4 地址
-HATHDIR=/mnt/hath    # H@H 所在目录
-HATHCID=12345        # H@H 的客户端 ID
-EHIPBID=1234567      # ipb_member_id
+# 可选替换国内软件源
+# sed -i 's_downloads.openwrt.org_mirrors.tuna.tsinghua.edu.cn/openwrt_' /etc/opkg/distfeeds.conf
+opkg update
+opkg install curl coreutils-sha1sum miniupnpc luci-app-natmap
+```
+
+## Debian
+
+```
+apt update
+apt install curl miniupnpc
+```
+
+NATMap 需手动安装，注意指令集架构
+
+```
+curl -Lo /usr/bin/natmap https://github.com/heiher/natmap/releases/download/20240813/natmap-linux-x86_64
+chmod +x /usr/bin/natmap
+```
+
+---
+
+Lucky 的安装方法请参照 [官网文档](https://lucky666.cn/docs/install)
+
+# 配置方法
+
+## NATMap
+
+### OpenWrt
+
+#### 配置脚本
+
+把脚本下载到本地，赋予执行权限并编辑变量
+
+```
+curl -Lso /usr/stun_hath.sh stun-hath.pages.dev/natmap
+# 如下载失败，请使用国内镜像
+# curl -Lso /usr/stun_hath.sh https://gitee.com/oniicyan/stun_hath/raw/master/stun_hath.sh
+chmod +x /usr/stun_hath.sh
+vi /usr/stun_hath.sh
+```
+
+```
+# 以下变量需按要求填写
+PROXY=socks5://192.168.1.168:10808          # 可用的代理协议、地址与端口；留空则不使用代理
+IFNAME=                                     # 指定接口，默认留空；仅多 WAN 时需要，仅 AUTONAT=1 时生效；拨号接口的格式为 "pppoe-wancm"
+AUTONAT=1                                   # 默认由脚本自动配置 DNAT；0 为手动配置，需要固定本地端口 (LANPORT)
+GWLADDR=192.168.1.1                         # 主路由 LAN 的 IPv4 地址
+APPADDR=192.168.1.168                       # H@H 客户端运行设备的 IPv4 地址，可以是主路由本身
+APPPORT=44388                               # H@H 客户端的监听端口，对应 --port= 参数
+HATHCID=12345                               # H@H 客户端 ID (Client ID)
+HATHKEY=12345abcde12345ABCDE                # H@H 客户端密钥 (Client Key)
+EHIPBID=1234567                             # ipb_member_id
+EHIPBPW=0123456789abcdef0123456789abcdef    # ipb_pass_hash
+INFODIR=/tmp                                # 穿透信息保存目录，默认为 /tmp
+```
+
+#### 配置 NATMap
+
+![图片](https://github.com/user-attachments/assets/ed87788e-6a9f-45a2-ac67-833a2bcb5945)
+
+或可编辑配置文件 `vi /etc/config/natmap`
+
+**注意实际的接口名称**
+
+```
+config natmap
+	option udp_mode '0'
+	option family 'ipv4'
+	option interface 'wancm'
+	option interval '25'
+	option stun_server 'turn.cloudflare.com'
+	option http_server 'qq.com'
+	option port '44377'
+	option notify_script '/usr/stun_hath.sh'
+	option enable '1'
+```
+
+### Debian
+
+`natmap -d -4 -k 25 -s turn.cloudflare.com -h qq.com -e "/usr/stun_hath.sh"`
+
+可添加自启动，具体方法因发行版而异
+
+## Lucky (Linux)
+
+![QQ20241025-1158542](https://github.com/user-attachments/assets/0bcac64d-0165-4605-905d-66e151481549)
+
+自定义脚本内容如下，请正确编辑变量内容
+
+```
+LANPORT=44377                             # 穿透通道本地端口
+GWLADDR=192.168.1.1                       # 主路由 LAN 的 IPv4 地址
+APPADDR=192.168.1.168	                  # H@H 客户端运行设备的 IPv4 地址，可以是主路由本身
+APPPORT=44388                             # H@H 客户端的监听端口，对应启动参数 --port=<port>
+HATHCID=12345                             # H@H 客户端 ID (Client ID)
+HATHKEY=12345abcde12345ABCDE              # H@H 客户端密钥 (Client Key)
+EHIPBID=1234567                           # ipb_member_id
 EHIPBPW=0123456789abcdef0123456789abcdef  # ipb_pass_hash
-IFNAME=              # 指定接口，可留空；仅在多 WAN 时需要；拨号接口的格式为 "pppoe-wancm"
+INFODIR=/tmp                              # 穿透信息保存目录，默认为 /tmp
+PROXY=socks5://192.168.1.168:10808        # 可用的代理协议、地址与端口；留空则不使用代理
+AUTONAT=1                                 # 默认由脚本自动配置 DNAT；0 为手动配置，需要固定本地端口 (LANPORT)
+IFNAME=                                   # 指定接口，默认留空；仅多 WAN 时需要，仅 AUTONAT=1 时生效；拨号接口的格式为 "pppoe-wancm"
 
-sh <(curl -Ls stun-hath.pages.dev) ${ip} ${port} $LANPORT $GWLADDR $HATHDIR $HATHCID $EHIPBID $EHIPBPW $IFNAME
+[ -e /usr/stun_hath_lucky.sh ] || curl -Lso /usr/stun_hath_lucky.sh https://gitee.com/oniicyan/stun_hath/raw/master/stun_hath_lucky2.sh
+sh /usr/stun_hath_lucky.sh ${ip} ${port} $LANPORT $GWLADDR $APPADDR $APPPORT $HATHCID $HATHKEY $EHIPBID $EHIPBPW $INFODIR $PROXY $AUTONAT $IFNAME
 ```
 
-网络脚本如要更换代理，请把最后一行改为以下，注意编辑协议、地址与端口
+默认使用国内镜像，脚本地址可改为 `stun-hath.pages.dev/lucky`
 
-`sh <(curl -Ls stun-hath.pages.dev | sed 's/h.*3/socks5:\/\/192.168.1.1:10808/') ${ip} ${port} $LANPORT $GWLADDR $HATHDIR $HATHCID $EHIPBID $EHIPBPW $IFNAME`
-
---------------------------------------------------------
-
-**如要指定接口，请配置页中选择定制模式并正确指定 IP 或网卡**
-
---------------------------------------------------------
-
-### 本地脚本
-
-把脚本下载到本地，事先编辑好开头部分除了 `WANADDR` 与 `WANPORT` 之外的变量值
-
-Lucky 中使用以下自定义命令，**注意编辑脚本路径**
-
-由于本地脚本中已编辑好变量，因此只需要一行命令
-
-Lucky 变量 `${ip}` `${port}` 不可省略大括号
-
-```
-sh /mnt/hath/stun_hath_lucky.sh ${ip} ${port}
-```
-
-也可把脚本直接粘贴到自定义脚本框中修改变量值，注意此时的 `WANADDR` 与 `WANPORT`
-
-```
-# 公共代理，不保证质量
-PROXY='http://jpfhDg:qawsedrftgyhujikolp@hathproxy.ydns.eu:14913'
-
-# 使用网络脚本时，从 Lucky 自定义命令中传递参数
-# 使用本地脚本时，请事先修改好变量值
-IFNAME=              # 指定接口，可留空；仅在多 WAN 时需要；拨号接口的格式为 "pppoe-wancm"
-GWLADDR=192.168.1.1  # 主路由 LAN 的 IPv4 地址
-HATHDIR=/mnt/hath    # H@H 所在目录
-HATHCID=12345        # H@H 的客户端 ID
-EHIPBID=1234567      # ipb_member_id
-EHIPBPW=0123456789abcdef0123456789abcdef  # ipb_pass_hash
-
-WANADDR=${ip}
-WANPORT=${port}
-LANPORT=12345        # 穿透通道本地端口
-L4PROTO=tcp
-OWNADDR=             # Lucky 不传递穿透通道本地地址，留空
-
-    ...... 剩余脚本内容 ......
-```
-
-**需要使用自己的代理时，请使用本地脚本并修改 PROXY 变量值**
-
-### 调试脚本
-
-若发现 H@H 启动不成功，可把自定义脚本的最后一行改为
-
-`sh -x <(curl -Ls stun-hath.pages.dev) ${ip} ${port} $LANPORT $GWLADDR $HATHDIR $HATHCID $EHIPBID $EHIPBPW $IFNAME 2>/mnt/hath/debug.txt`
-
-或
-
-`sh -x /mnt/hath/stun_hath_lucky.sh ${ip} ${port} 2>/mnt/hath/debug.txt`
-
-**请注意编辑脚本及输出文本的路径**
-
-打开输出文本 `debug.txt`，确认开头的每个变量是否正确，以及 `curl` 提交数据时内容是否对应穿透信息
-
-### Windows 脚本
-
-下载并解压 **stun_hath.zip** 或 **stun_hath_win32.zip** 的内容到 H@H 所在目录
-
-也可自行下载 [handle.exe](https://learn.microsoft.com/en-us/sysinternals/downloads/handle)、[windows-kill.exe](https://github.com/ElyDotDev/windows-kill)、[upnpc.exe](https://github.com/miniupnp/miniupnp)、[stun_hath.cmd](https://github.com/Oniicyan/STUN_HentaiAtHome/blob/main/stun_hath.cmd)
-
-Lucky 中添加以下自定义脚本，注意编辑变量
-
-```
-set LANPORT=12345
-set HATHDIR=D:\HentaiAtHome
-set HATHCID=12345
-set EHIPBID=1234567
-set EHIPBPW=0123456789abcdef0123456789abcdef
-
-set OUTPUT=%TEMP%\stun_hath.%RANDOM%%RANDOM%
-echo createobject^("wscript.shell"^).run "%HATHDIR%\stun_hath.cmd ${ip} ${port} %LANPORT% %HATHDIR% %HATHCID% %EHIPBID% %EHIPBPW% >%OUTPUT%",0 >%TEMP%\stun_hath.vbs
-%TEMP%\stun_hath.vbs
-echo %OUTPUT%
-```
-
-Windows 脚本调试打开用户临时文件夹（`%TEMP%`），找到 `stun_hath.12345678`
-
---------------------------------------------------------
-
-## 获取信息失败
-
-若因某些问题导致无法获取设置信息，可手动填写
-
-找到获取 H@H 设置信息的部分并改为以下内容
-
-```
-# 获取 H@H 设置信息
-# 获取失败时，手动填写信息
-# 以下 3 个为必须参数，需要填写
-f_cname=New+Client        # 客户端名称，空格换成 + 号
-f_throttle_KB=25000       # 上行带宽配额，单位是 KB
-f_disklimit_GB=1000       # 磁盘空间配额，单位是 GB
-# 以下为可选参数
-p_mthbwcap=0            # 每月流量上限，单位是 GB，默认为 0，即无限制；不可注释或删除本行
-f_diskremaining_MB=0    # 剩余空间保证，单位是 MB，默认为 0，即无限制；不可注释或删除本行
-f_enable_bwm=           # 启用客户端侧限速，默认关闭，开启时输入 on 或任意字符
-f_disable_logging=      # 禁用日志，默认关闭，开启时输入 on 或任意字符
-f_use_less_memory=      # 低内存模式，默认关闭，开启时输入 on 或任意字符
-f_is_hathdler=          # 作为默认下载器，默认关闭，开启时输入 on 或任意字符
-```
+需要注意，Lucky 指定接口需要开启定制模式
