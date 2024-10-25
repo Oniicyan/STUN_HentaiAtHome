@@ -16,13 +16,23 @@ Linux（特别是 OpenWrt，包括 WSL2）下通过 [NATMap](https://github.com/
 
 **通知脚本与 H@H 客户端脱离**，可运行在同一设备上，也可运行在不同的设备上
 
-**通知脚本不启动 H@H 客户端**，请自行在运行设备上启动
-
-启动命令末尾加上参数 `--port=44388`，指定客户端的本地监听端口
-
 **通知脚本更新端口后，无需重启客户端**
 
 但需要注意的是，必须在首次穿透成功后再启动 H@H 客户端，否则无法完成初始化，客户端将拒绝连接请求
+
+**通知脚本不启动 H@H 客户端**，请自行在运行设备上启动
+
+启动命令末尾加上参数 `--port=<port>`，指定客户端的本地监听端口
+
+Windows：编辑 'autostartgui.bat'
+
+`@start javaw -Xms16m -Xmx512m -jar HentaiAtHomeGUI.jar --silentstart --port=44388`
+
+Linux: 建议使用 [screen](https://www.gnu.org/software/screen/)
+
+`screen -dmS hath java -jar /mnt/sda1/HentaiAtHome.jar --port=44388`
+
+注意 `HentaiAtHome.jar` 的实际路径
 
 # 准备工作
 
