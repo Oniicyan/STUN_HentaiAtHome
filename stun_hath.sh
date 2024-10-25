@@ -132,7 +132,7 @@ fi
 while [ -z $f_cname ]; do
 	let GET++
  	if [ $GET -gt 3 ]; then
-  		echo -n $OWNNAME: Failed to get settings. Please check the PROXY. >&2
+  		echo -n $OWNNAME: Failed to get the settings. Please check the PROXY. >&2
     	exit 1
 	fi
  	[ $GET -ne 1 ] && sleep 15
@@ -172,7 +172,7 @@ ACTION client_suspend >/dev/null
 while :; do
 	let SET++
  	if [ $SET -gt 3 ]; then
-  		echo -n $OWNNAME: Failed to update port. Please check the PROXY. >&2
+  		echo -n $OWNNAME: Failed to update the external port. Please check the PROXY. >&2
     	exit 1
 	fi
 	[ $SET -ne 1 ] && sleep 15
