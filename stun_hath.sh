@@ -167,7 +167,7 @@ ACTION() {
 }
 
 # 发送 client_suspend 后，更新端口信息
-# 更新后，发送 client_login 验证端口
+# 更新后，发送 client_settings 验证端口
 ACTION client_suspend >/dev/null
 while :; do
 	let SET++
@@ -188,17 +188,16 @@ while :; do
 	-o $HATHPHP \
 	-d ''$DATA'' \
 	'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
-	ACTION client_settings | grep port=$WANPORT >/dev/null && break
+	ACTION client_settings | grep port=$WANPORT >/dev/null && \
+	echo -n $OWNNAME: The external port is updated successfully. && break
 done
 
 # 发送 client_start 后，校验响应消息
-# 若客户端已启动，将在下次 Check-In 时恢复连接，无需重启
-# 若客户端未启动，client_suspend 与 client_start 不会有任何实质影响
-# 本脚本不启动 H@H 客户端，请在首次穿透后，自行在运行设备上启动
-# 启动命令末尾加上参数 --port=44388，固定内部监听端口
-RESP=$(ACTION client_start | head -1)
-if [[ "$RESP" == "OK" ]]; then
-	echo -n $OWNNAME: The external port is updated successfully.
-else
-	echo -n $RESP
-fi
+# 若客户端已启动，则自动恢复连接，无需重启
+# 若客户端未启动，client_suspend 与 client_start 不会造成实质影响
+# 本脚本不启动 H@H 客户端，请自行在运行设备上启动
+# 启动命令末尾加上参数 --port=44388，指定客户端的本地监听端口 (APPPORT)
+# 必须在穿透成功后再启动，否则无法完成初始化，客户端将拒绝连接请求
+# [[ $(ACTION client_start | head -1) != "OK" ]] && \
+ACTION client_start
+echo -n Now please check that the client is running correctly.
