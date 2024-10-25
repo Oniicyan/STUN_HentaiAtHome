@@ -8,7 +8,7 @@ Linux（特别是 OpenWrt，包括 WSL2）下通过 [NATMap](https://github.com/
 
 主路由 UPnP 开启安全模式时，需要安装 proxychains (proxychains-ng/proxychains4)，并在运行设备上启用代理服务器，推荐 [3proxy](https://3proxy.ru/) 或 [GOST](https://gost.run/)
 
-[详细说明](https://www.bilibili.com/read/cv35051332/)（内容已过时）
+~~[详细说明](https://www.bilibili.com/read/cv35051332/)~~（内容已过时）
 
 [Windows 脚本使用教程](https://www.bilibili.com/read/cv36825243/)
 
