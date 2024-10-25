@@ -110,7 +110,7 @@ IFNAME=                                     # 指定接口，默认留空；仅�
 AUTONAT=1                                   # 默认由脚本自动配置 DNAT；0 为手动配置，需要固定本地端口 (LANPORT)
 GWLADDR=192.168.1.1                         # 主路由 LAN 的 IPv4 地址
 APPADDR=192.168.1.168                       # H@H 客户端运行设备的 IPv4 地址，可以是主路由本身
-APPPORT=44388                               # H@H 客户端的监听端口，对应 --port= 参数
+APPPORT=44388                               # H@H 客户端的本地监听端口，对应启动参数 --port=<port>
 HATHCID=12345                               # H@H 客户端 ID (Client ID)
 HATHKEY=12345abcde12345ABCDE                # H@H 客户端密钥 (Client Key)
 EHIPBID=1234567                             # ipb_member_id
