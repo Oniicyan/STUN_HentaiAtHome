@@ -24,7 +24,7 @@ Linux（特别是 OpenWrt，包括 WSL2）下通过 [NATMap](https://github.com/
 
 启动命令末尾加上参数 `--port=<port>`，指定客户端的本地监听端口
 
-Windows：编辑 'autostartgui.bat'
+Windows：编辑 `autostartgui.bat`
 
 `@start javaw -Xms16m -Xmx512m -jar HentaiAtHomeGUI.jar --silentstart --port=44388`
 
