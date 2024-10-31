@@ -172,3 +172,17 @@ sh /usr/stun_hath_lucky.sh ${ip} ${port} $LANPORT $GWLADDR $APPADDR $APPPORT $HA
 默认使用国内镜像，脚本地址可改为 `stun-hath.pages.dev/lucky`
 
 需要注意，Lucky 指定接口需要开启定制模式
+
+## 自启方案
+
+### Linux
+
+使用 Screen 时，可使用以下命令在 H@H 未检测到运行时启动
+
+```
+screen -ls | grep hath || \
+screen -dmS hath java -jar /mnt/sda1/HentaiAtHome.jar --port=44388
+```
+
+* 使用 NATMap 的，可添加在**脚本文件**的最后
+* 使用 Lucky 的，可加在**自定义脚本**的最后
