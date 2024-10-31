@@ -44,7 +44,7 @@ Linux: 建议使用 [screen](https://www.gnu.org/software/screen/)
 
 从 `Cookie` 项目中复制 `ipb_member_id` 与 `ipb_pass_hash`
 
-![图片](https://github.com/user-attachments/assets/a9e29f06-1d18-4768-97b5-a2cf2e842c9d)
+![图片](https://github.com/user-attachments/assets/fe5a99a3-238f-45e2-afdb-426c83a70e9b)
 
 ---
 
