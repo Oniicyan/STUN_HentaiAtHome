@@ -34,21 +34,63 @@ Linux: 建议使用 [screen](https://www.gnu.org/software/screen/)
 
 ## 端口映射
 
-本脚本不再自动配置端口映射，请自行在路由器上进行配置
+本脚本不再自动配置端口映射，请手动操作
+
+建议使用路由器的端口映射（或叫“**虚拟服务器**”），本文档示例使用 **OpenWrt**
 
 本脚本使用的默认端口
 
-* 外部端口：`44377`
+* `外部端口`：`44377`
   
   对应 **NATMap** 中的 **绑定端口** 或 **Lucky** 中的 **穿透通道本地端口**
   
-* 内部端口：`44388`
+* `内部端口`：`44388`
 
   H@H 客户端的本地监听端口，对应启动参数 `--port=<port>`
 
-内部 IP 地址即 H@H 客户端运行设备的 IPv4 地址；**OpenWrt** 上配置端口映射时，内部 IP 地址留空则代表路由器自身
+`内部 IP 地址` 即 H@H 客户端运行设备的 IPv4 地址
 
-建议仅在无法对路由器配置端口映射时，才使用 Lucky 的内置端口转发
+![图片](https://github.com/user-attachments/assets/7dca081d-c226-4c2c-bbf3-c0931603d631)
+
+---
+
+**OpenWrt** 上配置端口映射时，`目标区域` 与 `内部 IP 地址` 留空则代表路由器自身
+
+![图片](https://github.com/user-attachments/assets/9c7cfb82-eedb-4dd0-a19c-f143b7e71d74)
+
+保存后如下
+
+![图片](https://github.com/user-attachments/assets/7a0582fc-4e5d-4ff8-bbd5-4c6a0548c1ab)
+
+### nftables / iptables
+
+在需要指定网络接口，或需要在其他 Linux 发行版上配置端口映射时，可使用 `nft` 或 `iptables`
+
+* nftables
+  
+```
+# 创建 table 与 chain
+nft add table ip STUN
+nft add chain ip STUN DNAT { type nat hook prerouting priority dstnat \; }
+# 转发至其他设备，使用 dnat
+nft insert rule ip STUN DNAT iifname pppoe-wancm tcp dport 44377 counter dnat to 192.168.1.168:44388 comment stun_hath
+# 转发至本设备，使用 redirect
+nft insert rule ip STUN DNAT iifname pppoe-wancm tcp dport 44377 counter redirect to :44388 comment stun_hath
+```
+
+* iptables
+
+```
+# 转发至其他设备，使用 DNAT
+iptables -t nat -I PREROUTING -i pppoe-wancm -p tcp --dport 44377 -m comment --comment stun_hath -j DNAT --to-destination 192.168.1.168:44388
+# 转发至本设备，使用 REDIRECT
+iptables -t nat -I PREROUTING -i pppoe-wancm -p tcp --dport 44377 -m comment --comment stun_hath -j REDIRECT --to-ports 44388
+```
+### 用户态转发
+
+建议仅在无法对路由器配置端口映射时，才使用 Lucky 或其他用户态端口转发工具
+
+由于用户态转发uhi改变数据包源地址，需要在 H@H 客户端的启动参数中加上 `--disable-ip-origin-check `
 
 ## 获取账号 Cookie
 
