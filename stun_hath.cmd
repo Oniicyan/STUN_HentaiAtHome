@@ -2,7 +2,7 @@
 :: https://github.com/Oniicyan/STUN_HentaiAtHome
 :: https://gitee.com/oniicyan/stun_hath
 
-:: 由 Lucky 传递参数，注意顺序
+:: 由穿透工具传递参数，注意顺序
 set WANADDR=%1
 set WANPORT=%2
 set APPPORT=%3
