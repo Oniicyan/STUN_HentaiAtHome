@@ -97,6 +97,7 @@ done
 # 若客户端未启动，client_suspend 与 client_start 不会造成实质影响
 ACTION client_start >/dev/null
 if [ $HATHDIR != /tmp ]; then
+	cd $HATHDIR
 	screen -ls | grep $OWNNAME || \
 	screen -dmS $OWNNAME java -jar $HATHDIR/HentaiAtHome.jar --port=44388
 fi
