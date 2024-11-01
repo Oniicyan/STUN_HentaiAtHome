@@ -151,9 +151,7 @@ Lucky 的安装方法请参照 [官网文档](https://lucky666.cn/docs/install)
 
 ## NATMap
 
-### OpenWrt
-
-#### 配置脚本
+### 配置脚本
 
 把脚本下载到本地，赋予执行权限并编辑变量
 
@@ -176,9 +174,9 @@ EHIPBID=1234567                           # ipb_member_id
 EHIPBPW=0123456789abcdef0123456789abcdef  # ipb_pass_hash
 ```
 
-#### 配置 NATMap
+#### 配置 OpenWrt
 
-![图片](https://github.com/user-attachments/assets/ed87788e-6a9f-45a2-ac67-833a2bcb5945)
+![图片](https://github.com/user-attachments/assets/e5a1cd17-8861-42c6-af31-5a53cf0ce8b7)
 
 或可编辑配置文件 `vi /etc/config/natmap`
 
@@ -188,24 +186,23 @@ EHIPBPW=0123456789abcdef0123456789abcdef  # ipb_pass_hash
 config natmap
 	option udp_mode '0'
 	option family 'ipv4'
-	option interface 'wancm'
 	option interval '25'
 	option stun_server 'turn.cloudflare.com'
 	option http_server 'qq.com'
 	option port '44377'
-	option notify_script '/usr/stun_hath.sh'
+	option notify_script '/usr/stun_hath_natmap.sh'
 	option enable '1'
 ```
 
-### Debian
+#### 配置 Debian
 
-`natmap -d -4 -k 25 -s turn.cloudflare.com -h qq.com -e "/usr/stun_hath.sh"`
+`natmap -d -4 -k 25 -s turn.cloudflare.com -h qq.com -e "/usr/stun_hath_natmap.sh"`
 
 可添加自启动，具体方法因发行版而异
 
 ## Lucky (Linux)
 
-![QQ20241025-1158542](https://github.com/user-attachments/assets/0bcac64d-0165-4605-905d-66e151481549)
+![图片](https://github.com/user-attachments/assets/1f259450-d6f5-4b38-a8e1-30e402dbde30)
 
 自定义脚本内容如下，请正确编辑变量内容
 
@@ -224,8 +221,6 @@ sh /usr/stun_hath_lucky.sh ${ip} ${port} $APPPORT $HATHCID $HATHKEY $EHIPBID $EH
 ```
 
 默认使用国内镜像，脚本地址可改为 `stun-hath.pages.dev/lucky`
-
-需要注意，Lucky 指定接口需要开启定制模式
 
 ## Lucky (Windows)
 
