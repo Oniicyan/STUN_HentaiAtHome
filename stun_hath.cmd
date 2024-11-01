@@ -43,7 +43,7 @@ goto TRYGET
 
 :: 若端口未发送变化，则退出
 findstr f_port stun_hath.php | findstr %WANPORT% >nul &&^
-echo The external port has not changed. && exit 0
+echo The external port has not changed. && goto RUN
 
 :: 读取 H@H 设置信息
 for /F tokens^=6^ delims^=^" %%a in ('findstr f_cname stun_hath.php') do (set f_cname=%%a)
@@ -95,6 +95,8 @@ for /F %%a in ('powershell %TEMP%\stun_hath.ps1 client_settings') do (
 		goto TRYSET
 	)
 )
+
+:RUN
 
 :: 若未配置 H@H 文件夹，则不启动 H@H
 if %HATHDIR%==%TEMP% goto DONE
