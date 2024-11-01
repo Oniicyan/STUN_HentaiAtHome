@@ -84,6 +84,7 @@ curl %PROXY% -Lsm 15 ^
 for /F %%a in ('powershell %TEMP%\stun_hath.ps1 client_settings ^>nul') do (
 	echo %%a | findstr port=%WANPORT% >nul
 	if %ERRORLEVEL%==0 (
+		powershell %TEMP%\stun_hath.ps1 client_start >nul
 		echo The external port is updated successfully.
 	) else (
 		if %TRYSET% GEQ 3 (
