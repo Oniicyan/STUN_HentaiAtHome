@@ -116,4 +116,4 @@ for %%a in (amd64,x86,arm64,arm) do (
 )
 
 :DONE
-echo HentaiAtHome ok.
+echo Now please check that the client is running correctly.
