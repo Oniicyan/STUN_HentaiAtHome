@@ -110,10 +110,9 @@ for /F %%a in ('wmic process where %MATCH:\=\\% get ProcessId 2^>nul') do (
 :: 若未启动 H@H，则降权执行
 runas /trustlevel:0x20000 "javaw -Xms16m -Xmx512m -jar %HATHDIR%\HentaiAtHomeGUI.jar --silentstart --port=%APPPORT%" >nul && goto DONE
 :: Windows 11 22H2 及部分版本 runas 存在 Bug，需指定 /machine
-runas /trustlevel:0x20000 /machine:amd64 "javaw -Xms16m -Xmx512m -jar %HATHDIR%\HentaiAtHomeGUI.jar --silentstart --port=%APPPORT%" >nul && goto DONE
-runas /trustlevel:0x20000 /machine:x86 "javaw -Xms16m -Xmx512m -jar %HATHDIR%\HentaiAtHomeGUI.jar --silentstart --port=%APPPORT%" >nul && goto DONE
-runas /trustlevel:0x20000 /machine:arm64 "javaw -Xms16m -Xmx512m -jar %HATHDIR%\HentaiAtHomeGUI.jar --silentstart --port=%APPPORT%" >nul && goto DONE
-runas /trustlevel:0x20000 /machine:arm "javaw -Xms16m -Xmx512m -jar %HATHDIR%\HentaiAtHomeGUI.jar --silentstart --port=%APPPORT%" >nul && goto DONE
+for %%a in (amd64,x86,arm64,arm) do (
+	runas /trustlevel:0x20000 /machine:%%a "javaw -Xms16m -Xmx512m -jar %HATHDIR%\HentaiAtHomeGUI.jar --silentstart --port=%APPPORT%" >nul && goto DONE
+)
 
 :DONE
 echo HentaiAtHome ok.
