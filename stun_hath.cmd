@@ -102,8 +102,8 @@ for /F %%a in ('powershell %TEMP%\stun_hath.ps1 client_settings') do (
 if %HATHDIR%==%TEMP% goto DONE
 
 :: 若已启动 H@H，则结束
-set MATCH="CommandLine like '%%%HATHDIR%%%\HentaiAtHomeGUI.jar'"
-for /F %%a in ('wmic process where %MATCH:\=\\% get ProcessId') do (
+set MATCH="CommandLine like '%%%HATHDIR%\HentaiAtHomeGUI.jar%%'"
+for /F %%a in ('wmic process where %MATCH:\=\\% get ProcessId 2>nul') do (
 	echo %%a| findstr "^[0-9]*$" >nul && goto DONE
 )
 
