@@ -32,6 +32,24 @@ Linux: 建议使用 [screen](https://www.gnu.org/software/screen/)
 
 # 准备工作
 
+## 端口映射
+
+本脚本不再自动配置端口映射，请自行在路由器上进行配置
+
+本脚本使用的默认端口
+
+* 外部端口：`44377`
+  
+  对应 **NATMap** 中的 **绑定端口** 或 **Lucky** 中的 **穿透通道本地端口**
+  
+* 内部端口：`44388`
+
+  H@H 客户端的本地监听端口，对应启动参数 `--port=<port>`
+
+内部 IP 地址即 H@H 客户端运行设备的 IPv4 地址；**OpenWrt** 上配置端口映射时，内部 IP 地址留空则代表路由器自身
+
+建议仅在无法对路由器配置端口映射时，才使用 Lucky 的内置端口转发
+
 ## 获取账号 Cookie
 
 登录 E-Hentai 后，按 `F12` 打开浏览器开发人员工具，抓取网络通信
@@ -60,14 +78,14 @@ Linux: 建议使用 [screen](https://www.gnu.org/software/screen/)
 # 可选替换国内软件源
 # sed -i 's_downloads.openwrt.org_mirrors.tuna.tsinghua.edu.cn/openwrt_' /etc/opkg/distfeeds.conf
 opkg update
-opkg install curl coreutils-sha1sum miniupnpc luci-app-natmap
+opkg install curl coreutils-sha1sum luci-app-natmap
 ```
 
 ## Debian
 
 ```
 apt update
-apt install curl miniupnpc
+apt install curl
 ```
 
 NATMap 需手动安装，注意指令集架构
