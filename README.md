@@ -174,7 +174,7 @@ EHIPBID=1234567                           # ipb_member_id
 EHIPBPW=0123456789abcdef0123456789abcdef  # ipb_pass_hash
 ```
 
-#### 配置 OpenWrt
+### 配置 OpenWrt
 
 ![图片](https://github.com/user-attachments/assets/e5a1cd17-8861-42c6-af31-5a53cf0ce8b7)
 
@@ -194,7 +194,7 @@ config natmap
 	option enable '1'
 ```
 
-#### 配置 Debian
+### 配置 Debian
 
 `natmap -d -4 -k 25 -s turn.cloudflare.com -h qq.com -e "/usr/stun_hath_natmap.sh"`
 
