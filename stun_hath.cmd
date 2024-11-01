@@ -81,7 +81,7 @@ curl %PROXY% -Lsm 15 ^
 "https://e-hentai.org/hentaiathome.php?cid=%HATHCID%^&act=settings"
 
 :: 发送 client_settings 验证端口
-for /F %%a in ('powershell %TEMP%\stun_hath.ps1 client_settings') do (
+for /F %%a in ('powershell %TEMP%\stun_hath.ps1 client_settings ^>nul') do (
 	echo %%a | findstr port=%WANPORT% >nul
 	if %ERRORLEVEL%==0 (
 		echo The external port is updated successfully.
