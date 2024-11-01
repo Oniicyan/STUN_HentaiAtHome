@@ -56,7 +56,7 @@ for /F tokens^=6^ delims^=^" %%a in ('findstr f_diskremaining_MB stun_hath.php')
 :: 访问 http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act=server_stat 查询当前支持的 client_build
 echo $ACTTIME = [DateTimeOffset]::Now.ToUnixTimeSeconds() >%TEMP%\stun_hath.ps1
 echo $ACTKEY = $(-Join [security.cryptography.sha1managed]::new().ComputeHash([Text.Encoding]::Utf8.GetBytes("hentai@home-$args--%HATHCID%-$ACTTIME-%HATHKEY%")).ForEach{$_.ToString("x2")}) >>%TEMP%\stun_hath.ps1
-echo curl.exe "http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act=$args&add=&cid=%HATHCID%&acttime=$ACTTIME&actkey=$ACTKEY" >>%TEMP%\stun_hath.ps1
+echo curl.exe -Ls "http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act=$args&add=&cid=%HATHCID%&acttime=$ACTTIME&actkey=$ACTKEY" >>%TEMP%\stun_hath.ps1
 
 :: 发送 client_suspend
 powershell %TEMP%\stun_hath.ps1 client_suspend >nul
@@ -81,7 +81,7 @@ curl %PROXY% -Lsm 15 ^
 "https://e-hentai.org/hentaiathome.php?cid=%HATHCID%^&act=settings"
 
 :: 发送 client_settings 验证端口
-for /F %%a in ('powershell %TEMP%\stun_hath.ps1 client_settings ^>nul') do (
+for /F %%a in ('powershell "%TEMP%\stun_hath.ps1 client_settings | Select-String 'port'"') do (
 	echo %%a | findstr port=%WANPORT% >nul
 	if %ERRORLEVEL%==0 (
 		echo The external port is updated successfully.
