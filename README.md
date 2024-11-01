@@ -1,8 +1,12 @@
 # 介绍
 
-Linux（特别是 OpenWrt，包括 WSL2）下通过 [NATMap](https://github.com/heiher/natmap) 或 [Lucky](https://lucky666.cn/) 进行内网穿透后，调用通知脚本修改 [H@H](https://ehwiki.org/wiki/Hentai@Home) 客户端的公网端口
+Linux（特别是 OpenWrt，包括 WSL2）或 Windows 下通过 [NATMap](https://github.com/heiher/natmap) 或 [Lucky](https://lucky666.cn/) 进行内网穿透后，调用通知脚本修改 [H@H](https://ehwiki.org/wiki/Hentai@Home) 客户端的公网端口
 
-需要安装 [curl](https://curl.se/)，OpenWrt 下需要安装 `coreutils-sha1sum`
+需要安装 [curl](https://curl.se/)（Windows 10 以后自带）
+
+OpenWrt 下需要安装 `coreutils-sha1sum`
+
+Linux 下如需自动启动 H@H 客户端，需要安装 [Screen](https://www.gnu.org/software/screen/) 与 [JRE](https://docs.oracle.com/goldengate/1212/gg-winux/GDRAD/java.htm)
 
 ~~[详细说明](https://www.bilibili.com/read/cv35051332/)~~（内容已过时）
 
@@ -16,15 +20,15 @@ Linux（特别是 OpenWrt，包括 WSL2）下通过 [NATMap](https://github.com/
 
 但需要注意的是，必须在首次穿透成功后再启动 H@H 客户端，否则无法完成初始化，客户端将拒绝连接请求
 
-**通知脚本不启动 H@H 客户端**，请自行在运行设备上启动
+**若通知脚本与 H@H 客户端运行在不同设备上**，请自行启动
 
 启动命令末尾加上参数 `--port=<port>`，指定客户端的本地监听端口
 
-Windows：编辑 `autostartgui.bat`
+Windows: 编辑 `autostartgui.bat`
 
 `@start javaw -Xms16m -Xmx512m -jar HentaiAtHomeGUI.jar --silentstart --port=44388`
 
-Linux: 建议使用 [screen](https://www.gnu.org/software/screen/)
+Linux: 建议使用 `screen`
 
 `screen -dmS hath java -jar /mnt/sda1/HentaiAtHome.jar --port=44388`
 
@@ -120,14 +124,16 @@ iptables -t nat -I PREROUTING -i pppoe-wancm -p tcp --dport 44377 -m comment --c
 # 可选替换国内软件源
 # sed -i 's_downloads.openwrt.org_mirrors.tuna.tsinghua.edu.cn/openwrt_' /etc/opkg/distfeeds.conf
 opkg update
-opkg install curl coreutils-sha1sum luci-app-natmap
+opkg install curl coreutils-sha1sum screen luci-app-natmap
 ```
+
+[OpenWrt 下安装 Java 运行环境（JRE）](https://www.bilibili.com/read/cv35593253)
 
 ## Debian
 
 ```
 apt update
-apt install curl
+apt install curl screen openjdk-17-jdk-headless
 ```
 
 NATMap 需手动安装，注意指令集架构
@@ -252,17 +258,3 @@ curl -Lso %HATHDIR%\stun_hath.cmd https://gitee.com/oniicyan/stun_hath/raw/maste
 ```
 
 默认使用国内镜像，脚本地址可改为 `stun-hath.pages.dev/cmd`
-
-## 自启方案
-
-### Linux
-
-使用 Screen 时，可使用以下命令在 H@H 未检测到运行时启动
-
-```
-screen -ls | grep hath || \
-screen -dmS hath java -jar /mnt/sda1/HentaiAtHome.jar --port=44388
-```
-
-* 使用 NATMap 的，可添加在**脚本文件**的最后
-* 使用 Lucky 的，可加在**自定义脚本**的最后
