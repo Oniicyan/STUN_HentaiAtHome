@@ -200,7 +200,9 @@ config natmap
 
 可添加自启动，具体方法因发行版而异
 
-## Lucky (Linux)
+## Lucky 
+
+### Linux
 
 ![图片](https://github.com/user-attachments/assets/1f259450-d6f5-4b38-a8e1-30e402dbde30)
 
@@ -222,7 +224,7 @@ sh /usr/stun_hath_lucky.sh ${ip} ${port} $APPPORT $HATHCID $HATHKEY $EHIPBID $EH
 
 默认使用国内镜像，脚本地址可改为 `stun-hath.pages.dev/lucky`
 
-## Lucky (Windows)
+### Windows
 
 ![图片](https://github.com/user-attachments/assets/f6edc1fb-8135-49a4-8e0b-840f5a10cbee)
 
