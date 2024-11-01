@@ -11,12 +11,9 @@ HATHKEY=$5  # H@H 客户端密钥 (Client Key)
 EHIPBID=$6  # ipb_member_id
 EHIPBPW=$7  # ipb_pass_hash
 HATHDIR=$8	# H@H 客户端所在路径；留空则不自动执行（留空时传递 /tmp）
-PROXY=$9
+[ -n "$9" ] && PROXY=$(echo "-x $9") # 可用的代理协议、地址与端口；留空则不使用代理
 
 OWNNAME=$(basename -s .sh $0)
-
-[ -n "$PROXY" ] && PROXY=$(echo "-x $PROXY")
-[ -z "$HATHDIR" ] && HATHDIR=/tmp
 
 # 防止脚本重复运行
 PIDNF=$( ( ps aux 2>/dev/null; ps ) | awk '{for(i=1;i<=NF;i++)if($i=="PID")n=i}NR==1{print n}' )
