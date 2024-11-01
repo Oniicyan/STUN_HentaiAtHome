@@ -2,5 +2,5 @@
 /natmap /stun_hath.sh 301
 /lucky /stun_hath_lucky2.sh 301
 /cmd /stun_hath.cmd 301
-/win /stun_hath.zip 301
-/win32 /stun_hath_win32.zip 301
+/win /stun_hath_old.zip 301
+/win32 /stun_hath_old_win32.zip 301
