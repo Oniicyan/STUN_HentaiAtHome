@@ -115,5 +115,3 @@ runas /trustlevel:0x20000 /machine:arm "javaw -Xms16m -Xmx512m -jar %HATHDIR%\He
 
 :DONE
 echo HentaiAtHome ok.
-echo.
-echo.
