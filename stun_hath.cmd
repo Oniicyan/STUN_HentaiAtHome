@@ -59,7 +59,7 @@ echo $ACTKEY = $(-Join [security.cryptography.sha1managed]::new().ComputeHash([T
 echo curl.exe "http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act=$args&add=&cid=%HATHCID%&acttime=$ACTTIME&actkey=$ACTKEY" >>%TEMP%\stun_hath.ps1
 
 :: 发送 client_suspend
-powershell %TEMP%\stun_hath.ps1 client_suspend
+powershell %TEMP%\stun_hath.ps1 client_suspend >nul
 
 :: 更新 H@H 端口信息
 :TRYSET
