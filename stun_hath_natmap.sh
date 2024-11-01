@@ -32,7 +32,7 @@ echo $(date) $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT >>$HATHDIR/$OWNNA
 while [ -z $f_cname ]; do
 	let GET++
  	if [ $GET -gt 3 ]; then
-  		logger -st $OWNNAME Failed to get the settings. Please check the PROXY.
+  		logger -t $OWNNAME Failed to get the settings. Please check the PROXY.
     	exit 1
 	fi
  	[ $GET -ne 1 ] && sleep 15
@@ -55,7 +55,7 @@ done
 
 # 检测是否需要更改端口
 [ "$(grep f_port $HATHPHP | awk -F '"' '{print$6}')" = $WANPORT ] && \
-logger -st $OWNNAME The external port has not changed. && SKIP=1
+logger -t $OWNNAME The external port has not changed. && SKIP=1
 
 # 定义与 RPC 服务器交互的函数
 # 访问 http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act=server_stat 查询当前支持的 client_build
@@ -72,7 +72,7 @@ ACTION() {
 while [ -z "$SKIP" ]; do
 	let SET++
  	if [ $SET -gt 3 ]; then
-  		logger -st $OWNNAME Failed to update the external port. Please check the PROXY.
+  		logger -t $OWNNAME Failed to update the external port. Please check the PROXY.
     	exit 1
 	fi
 	[ $SET -ne 1 ] && sleep 15
@@ -89,7 +89,7 @@ while [ -z "$SKIP" ]; do
 	-d ''$DATA'' \
 	'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
 	ACTION client_settings | grep port=$WANPORT >/dev/null && \
-	logger -st $OWNNAME The external port is updated successfully. && break
+	logger -t $OWNNAME The external port is updated successfully. && break
 done
 
 # 发送 client_start 后，检测是否需要启动 H@H 客户端
@@ -101,4 +101,4 @@ if [ $HATHDIR != /tmp ]; then
 	screen -ls | grep $OWNNAME || \
 	screen -dmS $OWNNAME java -jar $HATHDIR/HentaiAtHome.jar --port=44388
 fi
-logger -st $OWNNAME Now please check that the client is running correctly.
+logger -t $OWNNAME Now please check that the client is running correctly.
