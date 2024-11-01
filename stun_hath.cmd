@@ -1,20 +1,22 @@
+:: 使用说明请参照以下链接
+:: https://github.com/Oniicyan/STUN_HentaiAtHome
+:: https://gitee.com/oniicyan/stun_hath
+
 :: 由 Lucky 传递参数，注意顺序
-set PROXY=%1
-set WANADDR=%2
-set WANPORT=%3
-set APPPORT=%4
-set HATHCID=%5
-set HATHKEY=%6
-set EHIPBID=%7
-set EHIPBPW=%8
-set HATHDIR=%9
+set WANADDR=%1
+set WANPORT=%2
+set APPPORT=%3
+set HATHCID=%4
+set HATHKEY=%5
+set EHIPBID=%6
+set EHIPBPW=%7
+set HATHDIR=%8
+echo %9 | findstr :// >nul && set PROXY=-x %9
 
 :: 初始化
-if NOT EXIST %HATHDIR% set HATHDIR=%TEMP%
 cd /D %HATHDIR%
 set TRYGET=0
 set TRYSET=0
-setlocal enabledelayedexpansion
 
 :: 保存穿透信息
 echo %date%%time% tcp %WANADDR% : %WANPORT% >stun_hath.info
@@ -23,8 +25,7 @@ echo %date%%time% tcp %WANADDR% : %WANPORT% >>stun_hath.log
 :: 获取 H@H 设置信息
 :TRYGET
 del stun_hath.php 2>nul
-curl -Ls -m 10 ^
--x %PROXY% ^
+curl %PROXY% -Lsm 15 ^
 -b "ipb_member_id=%EHIPBID%; ipb_pass_hash=%EHIPBPW%" ^
 -o stun_hath.php ^
 "https://e-hentai.org/hentaiathome.php?cid=%HATHCID%^&act=settings"
@@ -73,8 +74,7 @@ findstr f_use_less_memory stun_hath.php | findstr checked >nul &&^
 set DATA="%DATA:"=%&f_use_less_memory=on"
 findstr f_is_hathdler stun_hath.php | findstr checked >nul &&^
 set DATA="%DATA:"=%&f_is_hathdler=on"
-curl -Ls -m 10 ^
--x %PROXY% ^
+curl %PROXY% -Lsm 15 ^
 -b "ipb_member_id=%EHIPBID%; ipb_pass_hash=%EHIPBPW%" ^
 -o stun_hath.php ^
 -d %DATA% ^
@@ -83,7 +83,7 @@ curl -Ls -m 10 ^
 :: 发送 client_settings 验证端口
 for /F %%a in ('powershell %TEMP%\stun_hath.ps1 client_settings') do (
 	echo %%a | findstr port=%WANPORT% >nul
-	if %ERRORLEVEL% ==0 (
+	if %ERRORLEVEL%==0 (
 		echo The external port is updated successfully.
 	) else (
 		if %TRYSET% GEQ 3 (
@@ -105,12 +105,13 @@ for /F %%a in ('wmic process where %MATCH:\=\\% get ProcessId') do (
 	echo %%a| findstr "^[0-9]*$" >nul && goto DONE
 )
 
-:: 启动 H@H
+:: 若未启动 H@H，则降权执行
 runas /trustlevel:0x20000 "javaw -Xms16m -Xmx512m -jar %HATHDIR%\HentaiAtHomeGUI.jar --silentstart --port=%APPPORT%" && goto DONE
 :: Windows 11 22H2 及部分版本 runas 存在 Bug，需指定 /machine
-:: 若提示计算机类型不匹配，则尝试 x86
 runas /trustlevel:0x20000 /machine:amd64 "javaw -Xms16m -Xmx512m -jar %HATHDIR%\HentaiAtHomeGUI.jar --silentstart --port=%APPPORT%" && goto DONE
 runas /trustlevel:0x20000 /machine:x86 "javaw -Xms16m -Xmx512m -jar %HATHDIR%\HentaiAtHomeGUI.jar --silentstart --port=%APPPORT%" && goto DONE
+runas /trustlevel:0x20000 /machine:arm64 "javaw -Xms16m -Xmx512m -jar %HATHDIR%\HentaiAtHomeGUI.jar --silentstart --port=%APPPORT%" && goto DONE
+runas /trustlevel:0x20000 /machine:arm "javaw -Xms16m -Xmx512m -jar %HATHDIR%\HentaiAtHomeGUI.jar --silentstart --port=%APPPORT%" && goto DONE
 
 :DONE
 echo HentaiAtHome ok.
