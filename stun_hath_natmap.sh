@@ -25,7 +25,6 @@ while :; do
 done
 
 # 保存穿透信息
-echo $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT $(date +%s) >$HATHDIR/$OWNNAME.info
 echo $(date) $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT >>$HATHDIR/$OWNNAME.log
 
 # 获取 H@H 设置信息
