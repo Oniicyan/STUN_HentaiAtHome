@@ -92,6 +92,7 @@ iptables -t nat -I PREROUTING -i pppoe-wancm -p tcp --dport 44377 -m comment --c
 # 转发至本设备，使用 REDIRECT
 iptables -t nat -I PREROUTING -i pppoe-wancm -p tcp --dport 44377 -m comment --comment stun_hath -j REDIRECT --to-ports 44388
 ```
+
 ### 用户态转发
 
 建议仅在无法对路由器配置端口映射时，才使用 Lucky 或其他用户态端口转发工具
