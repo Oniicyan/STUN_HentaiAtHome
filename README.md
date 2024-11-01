@@ -4,13 +4,9 @@ Linux（特别是 OpenWrt，包括 WSL2）下通过 [NATMap](https://github.com/
 
 需要安装 [curl](https://curl.se/)，OpenWrt 下需要安装 `coreutils-sha1sum`
 
-运行在非主路由时，还需要安装 [miniupnpc](http://miniupnp.free.fr/)
-
-主路由 UPnP 开启安全模式时，需要安装 proxychains (proxychains-ng/proxychains4)，并在运行设备上启用代理服务器，推荐 [3proxy](https://3proxy.ru/) 或 [GOST](https://gost.run/)
-
 ~~[详细说明](https://www.bilibili.com/read/cv35051332/)~~（内容已过时）
 
-[Windows 脚本使用教程](https://www.bilibili.com/read/cv36825243/)
+~~[Windows 脚本使用教程](https://www.bilibili.com/read/cv36825243/)~~（内容已过时）
 
 ## 注意事项
 
@@ -172,6 +168,30 @@ sh /usr/stun_hath_lucky.sh ${ip} ${port} $LANPORT $GWLADDR $APPADDR $APPPORT $HA
 默认使用国内镜像，脚本地址可改为 `stun-hath.pages.dev/lucky`
 
 需要注意，Lucky 指定接口需要开启定制模式
+
+## Lucky (Windows)
+
+![图片](https://github.com/user-attachments/assets/f6edc1fb-8135-49a4-8e0b-840f5a10cbee)
+
+自定义脚本内容如下，请正确编辑变量内容
+
+```
+set PROXY=socks5://192.168.1.168:10808        :: 可用的代理协议、地址与端口；留空则不使用代理
+set HATHDIR=D:\HentaiAtHome                   :: H@H 客户端所在路径；留空则不自动执行（非本机客户端请留空）
+set APPPORT=44388                             :: H@H 客户端的监听端口，对应启动参数 --port=<port>
+set HATHCID=12345                             :: H@H 客户端 ID (Client ID)
+set HATHKEY=12345abcde12345ABCDE              :: H@H 客户端密钥 (Client Key)
+set EHIPBID=1234567                           :: ipb_member_id
+set EHIPBPW=0123456789abcdef0123456789abcdef  :: ipb_pass_hash
+
+if NOT EXIST %HATHDIR% set HATHDIR=%TEMP%
+if NOT EXIST %HATHDIR%\stun_hath.cmd ^
+curl -Lso %HATHDIR%\stun_hath.cmd https://gitee.com/oniicyan/stun_hath/raw/master/stun_hath.cmd
+
+%HATHDIR%\stun_hath.cmd ${ip} ${port} %APPPORT% %HATHCID% %HATHKEY% %EHIPBID% %EHIPBPW% %HATHDIR% %PROXY%
+```
+
+默认使用国内镜像，脚本地址可改为 `stun-hath.pages.dev/cmd`
 
 ## 自启方案
 
