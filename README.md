@@ -158,26 +158,22 @@ Lucky 的安装方法请参照 [官网文档](https://lucky666.cn/docs/install)
 把脚本下载到本地，赋予执行权限并编辑变量
 
 ```
-curl -Lso /usr/stun_hath.sh stun-hath.pages.dev/natmap
+curl -Lso /usr/stun_hath_natmap.sh stun-hath.pages.dev/natmap
 # 如下载失败，请使用国内镜像
-# curl -Lso /usr/stun_hath.sh https://gitee.com/oniicyan/stun_hath/raw/master/stun_hath.sh
-chmod +x /usr/stun_hath.sh
-vi /usr/stun_hath.sh
+# curl -Lso /usr/stun_hath_natmap.sh https://gitee.com/oniicyan/stun_hath/raw/master/stun_hath_natmap.sh
+chmod +x /usr/stun_hath_natmap.sh
+vi /usr/stun_hath_natmap.sh
 ```
 
 ```
 # 以下变量需按要求填写
-PROXY=socks5://192.168.1.168:10808          # 可用的代理协议、地址与端口；留空则不使用代理
-IFNAME=                                     # 指定接口，默认留空；仅多 WAN 时需要，仅 AUTONAT=1 时生效；拨号接口的格式为 "pppoe-wancm"
-AUTONAT=1                                   # 默认由脚本自动配置 DNAT；0 为手动配置，需要固定本地端口 (LANPORT)
-GWLADDR=192.168.1.1                         # 主路由 LAN 的 IPv4 地址
-APPADDR=192.168.1.168                       # H@H 客户端运行设备的 IPv4 地址，可以是主路由本身
-APPPORT=44388                               # H@H 客户端的本地监听端口，对应启动参数 --port=<port>
-HATHCID=12345                               # H@H 客户端 ID (Client ID)
-HATHKEY=12345abcde12345ABCDE                # H@H 客户端密钥 (Client Key)
-EHIPBID=1234567                             # ipb_member_id
-EHIPBPW=0123456789abcdef0123456789abcdef    # ipb_pass_hash
-INFODIR=/tmp                                # 穿透信息保存目录，默认为 /tmp
+PROXY=socks5://192.168.1.168:10808        # 可用的代理协议、地址与端口；留空则不使用代理
+HATHDIR=/mnt/sda1                         # H@H 客户端所在路径；留空则不自动执行（非本机客户端请留空）
+APPPORT=44388                             # H@H 客户端的本地监听端口，对应启动参数 --port=<port>
+HATHCID=12345                             # H@H 客户端 ID (Client ID)
+HATHKEY=12345abcde12345ABCDE              # H@H 客户端密钥 (Client Key)
+EHIPBID=1234567                           # ipb_member_id
+EHIPBPW=0123456789abcdef0123456789abcdef  # ipb_pass_hash
 ```
 
 #### 配置 NATMap
@@ -214,21 +210,17 @@ config natmap
 自定义脚本内容如下，请正确编辑变量内容
 
 ```
-LANPORT=44377                             # 穿透通道本地端口
-GWLADDR=192.168.1.1                       # 主路由 LAN 的 IPv4 地址
-APPADDR=192.168.1.168	                  # H@H 客户端运行设备的 IPv4 地址，可以是主路由本身
-APPPORT=44388                             # H@H 客户端的监听端口，对应启动参数 --port=<port>
+PROXY=socks5://192.168.1.168:10808        # 可用的代理协议、地址与端口；留空则不使用代理
+HATHDIR=/mnt/sda1                         # H@H 客户端所在路径；留空则不自动执行（非本机客户端请留空）
+APPPORT=44388                             # H@H 客户端的本地监听端口，对应启动参数 --port=<port>
 HATHCID=12345                             # H@H 客户端 ID (Client ID)
 HATHKEY=12345abcde12345ABCDE              # H@H 客户端密钥 (Client Key)
 EHIPBID=1234567                           # ipb_member_id
 EHIPBPW=0123456789abcdef0123456789abcdef  # ipb_pass_hash
-INFODIR=/tmp                              # 穿透信息保存目录，默认为 /tmp
-PROXY=socks5://192.168.1.168:10808        # 可用的代理协议、地址与端口；留空则不使用代理
-AUTONAT=1                                 # 默认由脚本自动配置 DNAT；0 为手动配置，需要固定本地端口 (LANPORT)
-IFNAME=                                   # 指定接口，默认留空；仅多 WAN 时需要，仅 AUTONAT=1 时生效；拨号接口的格式为 "pppoe-wancm"
 
-[ -e /usr/stun_hath_lucky.sh ] || curl -Lso /usr/stun_hath_lucky.sh https://gitee.com/oniicyan/stun_hath/raw/master/stun_hath_lucky2.sh
-sh /usr/stun_hath_lucky.sh ${ip} ${port} $LANPORT $GWLADDR $APPADDR $APPPORT $HATHCID $HATHKEY $EHIPBID $EHIPBPW $INFODIR $PROXY $AUTONAT $IFNAME
+[ -z "$HATHDIR" ] && HATHDIR=/tmp
+[ -e /usr/stun_hath_lucky.sh ] || curl -Lso /usr/stun_hath_lucky.sh https://gitee.com/oniicyan/stun_hath/raw/master/stun_hath_lucky.sh
+sh /usr/stun_hath_lucky.sh ${ip} ${port} $APPPORT $HATHCID $HATHKEY $EHIPBID $EHIPBPW $HATHDIR $PROXY
 ```
 
 默认使用国内镜像，脚本地址可改为 `stun-hath.pages.dev/lucky`
