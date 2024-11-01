@@ -1,15 +1,11 @@
 # 以下变量需按要求填写
-PROXY=socks5://192.168.1.168:10808		# 可用的代理协议、地址与端口；留空则不使用代理
-IFNAME=						# 指定接口，默认留空；仅多 WAN 时需要，仅 AUTONAT=1 时生效；拨号接口的格式为 "pppoe-wancm"
-AUTONAT=1					# 默认由脚本自动配置 DNAT；0 为手动配置，需要固定本地端口 (LANPORT)
-GWLADDR=192.168.1.1				# 主路由 LAN 的 IPv4 地址
-APPADDR=192.168.1.168				# H@H 客户端运行设备的 IPv4 地址，可以是主路由本身
-APPPORT=44388					# H@H 客户端的本地监听端口，对应启动参数 --port=<port>
-HATHCID=12345					# H@H 客户端 ID (Client ID)
-HATHKEY=12345abcde12345ABCDE			# H@H 客户端密钥 (Client Key)
-EHIPBID=1234567					# ipb_member_id
+PROXY=socks5://192.168.1.168:10808			# 可用的代理协议、地址与端口；留空则不使用代理
+INFODIR=/tmp								# 穿透信息保存目录，默认为 /tmp
+APPPORT=44388								# H@H 客户端的本地监听端口，对应启动参数 --port=<port>
+HATHCID=12345								# H@H 客户端 ID (Client ID)
+HATHKEY=12345abcde12345ABCDE				# H@H 客户端密钥 (Client Key)
+EHIPBID=1234567								# ipb_member_id
 EHIPBPW=0123456789abcdef0123456789abcdef	# ipb_pass_hash
-INFODIR=/tmp					# 穿透信息保存目录，默认为 /tmp
 
 WANADDR=$1
 WANPORT=$2
@@ -31,102 +27,6 @@ done
 # 保存穿透信息
 echo $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT $(date +%s) >$INFODIR/$OWNNAME.info
 echo $(date) $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT >>$INFODIR/$OWNNAME.log
-
-# 若 H@H 运行在主路由上，则添加 DNAT 规则
-# 系统为 OpenWrt，且未指定 IFNAME 时，使用 uci
-# 其他情况使用 nft，并检测是否需要填充 uci
-SETDNAT() {
-	nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
-	iptables -t nat $(iptables-save 2>/dev/null | grep $OWNNAME | sed 's/-A/-D/') 2>/dev/null
-	if [ "$RELEASE" = "openwrt" ] && [ -z $IFNAME ]; then
-		nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
-		uci -q delete firewall.stun_foo
-		uci -q delete firewall.$OWNNAME
-		uci set firewall.$OWNNAME=redirect
-		uci set firewall.$OWNNAME.name=${OWNNAME}_$LANPORT'->'$APPPORT
-		uci set firewall.$OWNNAME.src=wan
-		uci set firewall.$OWNNAME.proto=tcp
-		uci set firewall.$OWNNAME.src_dport=$LANPORT
-		uci set firewall.$OWNNAME.dest_port=$APPPORT
-		[ "$GWLADDR" != "$APPADDR" ] && \
-		uci set firewall.$OWNNAME.dest='lan' && \
-		uci set firewall.$OWNNAME.dest_ip=$APPADDR
-		uci commit firewall
-		/etc/init.d/firewall reload >/dev/null 2>&1
-		UCI=1
-	elif nft -v >/dev/null 2>&1; then
-		[ -n "$IFNAME" ] && IIFNAME="iifname $IFNAME"
-		nft add table ip STUN
-		nft add chain ip STUN DNAT { type nat hook prerouting priority dstnat \; }
-		if [ "$GWLADDR" != "$APPADDR" ]; then
-			nft insert rule ip STUN DNAT $IIFNAME tcp dport $LANPORT counter dnat to $APPADDR:$APPPORT comment $OWNNAME
-		else
-			nft insert rule ip STUN DNAT $IIFNAME tcp dport $LANPORT counter redirect to :$APPPORT comment $OWNNAME
-		fi
-	elif iptables -V >/dev/null 2>&1; then
-		[ -n "$IFNAME" ] && IIFNAME="-i $IFNAME"
-		if [ "$GWLADDR" != "$APPADDR" ]; then
-			iptables -t nat -I PREROUTING $IIFNAME -p tcp --dport $LANPORT -m comment --comment $OWNNAME -j DNAT --to-destination $APPADDR:$APPPORT
-		else
-			iptables -t nat -I PREROUTING $IIFNAME -p tcp --dport $LANPORT -m comment --comment $OWNNAME -j REDIRECT --to-ports $APPPORT
-		fi
-	fi
-	if [ "$RELEASE" = "openwrt" ] && [ "$UCI" != 1 ]; then
-		uci -q delete firewall.stun_foo && RELOAD=1
-		uci -q delete firewall.$OWNNAME && RELOAD=1
-		if uci show firewall | grep =redirect >/dev/null; then
-			for CONFIG in $(uci show firewall | grep =redirect | awk -F = '{print$1}'); do
-				[ "$(uci -q get $CONFIG.src)" = "wan" ] && [ "$(uci -q get $CONFIG.enabled)" != 0 ] && \
-				RULE=1 && break
-			done
-		fi
-		if [ "$RULE" != 1 ]; then
-			uci set firewall.stun_foo=redirect
-			uci set firewall.stun_foo.name=stun_foo
-			uci set firewall.stun_foo.src=wan
-			uci set firewall.stun_foo.mark=$RANDOM
-			RELOAD=1
-		fi
-		uci commit firewall
-		[ "$RELOAD" = 1 ] && /etc/init.d/firewall reload >/dev/null 2>&1
-	fi
-	DNAT=1
-}
-if [ "$AUTONAT" = 1 ]; then
-	for LANADDR in $(ip -4 a | grep inet | awk '{print$2}' | awk -F '/' '{print$1}'); do
-		[ "$DNAT" = 1 ] && break
-		[ "$LANADDR" = $GWLADDR ] && SETDNAT
-	done
-	for LANADDR in $(nslookup -type=A $HOSTNAME | grep Address | grep -v -e ':\d' | awk '{print$2}'); do
-		[ "$DNAT" = 1 ] && break
-		[ "$LANADDR" = $GWLADDR ] && SETDNAT
-	done
-fi
-
-# 若 H@H 运行在主路由下，则通过 UPnP 请求规则
-# 先尝试直连 UPnP
-if [ "$AUTONAT" = 1 ] && [ -z $DNAT ]; then
-	nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
-	iptables -t nat $(iptables-save 2>/dev/null | grep $OWNNAME | sed 's/-A/-D/') 2>/dev/null
-	[ "$RELEASE" = "openwrt" ] && uci -q delete firewall.$OWNNAME
-	upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$APPPORT" -a $APPADDR $APPPORT $LANPORT tcp | \
-	grep $APPADDR | grep $APPPORT | grep $LANPORT | grep -v failed >/dev/null
-	[ $? = 0 ] && DNAT=2
-fi
-
-# 直连失败，则尝试代理 UPnP
-if [ "$AUTONAT" = 1 ] && [ -z $DNAT ]; then
-	PROXYCONF=/tmp/proxychains.conf
-	echo [ProxyList] >$PROXYCONF
-	echo http $APPADDR 3128 >>$PROXYCONF
-	proxychains -f $PROXYCONF \
-	upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$APPPORT" -a $APPADDR $APPPORT $LANPORT tcp | \
-	grep $APPADDR | grep $APPPORT | grep $LANPORT | grep -v failed >/dev/null
-	[ $? = 0 ] && DNAT=3
-fi
-
-# 代理失败，则启用本机 UPnP
-[ "$AUTONAT" = 1 ] && [ -z $DNAT ] && (upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$APPPORT" -a @ $APPPORT $LANPORT tcp >/dev/null 2>&1; SETDNAT)
 
 # 获取 H@H 设置信息
 while [ -z $f_cname ]; do
