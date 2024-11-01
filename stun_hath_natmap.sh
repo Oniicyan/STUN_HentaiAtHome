@@ -1,11 +1,11 @@
 # 以下变量需按要求填写
-PROXY=socks5://192.168.1.168:10808			# 可用的代理协议、地址与端口；留空则不使用代理
-INFODIR=/tmp								# 穿透信息保存目录，默认为 /tmp
-APPPORT=44388								# H@H 客户端的本地监听端口，对应启动参数 --port=<port>
-HATHCID=12345								# H@H 客户端 ID (Client ID)
-HATHKEY=12345abcde12345ABCDE				# H@H 客户端密钥 (Client Key)
-EHIPBID=1234567								# ipb_member_id
-EHIPBPW=0123456789abcdef0123456789abcdef	# ipb_pass_hash
+PROXY=socks5://192.168.1.168:10808        # 可用的代理协议、地址与端口；留空则不使用代理
+HATHDIR=/mnt/sda1                         # H@H 客户端所在路径；留空则不自动执行（非本机客户端请留空）
+APPPORT=44388                             # H@H 客户端的本地监听端口，对应启动参数 --port=<port>
+HATHCID=12345                             # H@H 客户端 ID (Client ID)
+HATHKEY=12345abcde12345ABCDE              # H@H 客户端密钥 (Client Key)
+EHIPBID=1234567                           # ipb_member_id
+EHIPBPW=0123456789abcdef0123456789abcdef  # ipb_pass_hash
 
 WANADDR=$1
 WANPORT=$2
@@ -13,10 +13,10 @@ LANPORT=$4
 L4PROTO=$5
 OWNADDR=$6
 
-OWNNAME=$(echo stun_hath_${APPADDR}_${APPPORT}$([ -n "$IFNAME" ] && echo @$IFNAME) | sed 's/[[:punct:]]/_/g')
-RELEASE=$(grep ^ID= /etc/os-release | awk -F '=' '{print$2}' | tr -d \")
+OWNNAME=$(basename -s .sh $0)
 
 [ -n "$PROXY" ] && PROXY=$(echo "-x $PROXY")
+[ -z "$HATHDIR" ] && HATHDIR=/tmp
 
 # 防止脚本重复运行
 PIDNF=$( ( ps aux 2>/dev/null; ps ) | awk '{for(i=1;i<=NF;i++)if($i=="PID")n=i}NR==1{print n}' )
@@ -25,14 +25,14 @@ while :; do
 done
 
 # 保存穿透信息
-echo $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT $(date +%s) >$INFODIR/$OWNNAME.info
-echo $(date) $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT >>$INFODIR/$OWNNAME.log
+echo $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT $(date +%s) >$HATHDIR/$OWNNAME.info
+echo $(date) $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT >>$HATHDIR/$OWNNAME.log
 
 # 获取 H@H 设置信息
 while [ -z $f_cname ]; do
 	let GET++
  	if [ $GET -gt 3 ]; then
-  		echo -n $OWNNAME: Failed to get the settings. Please check the PROXY. >&2
+  		logger -st $OWNNAME Failed to get the settings. Please check the PROXY.
     	exit 1
 	fi
  	[ $GET -ne 1 ] && sleep 15
@@ -53,9 +53,9 @@ while [ -z $f_cname ]; do
 	f_is_hathdler=$(grep f_is_hathdler $HATHPHP | grep checked)
 done
 
-# 若外部端口未变，则退出
+# 检测是否需要更改端口
 [ "$(grep f_port $HATHPHP | awk -F '"' '{print$6}')" = $WANPORT ] && \
-echo -n $OWNNAME: The external port has not changed. >&2 && exit 0
+logger -st $OWNNAME The external port has not changed. && SKIP=1
 
 # 定义与 RPC 服务器交互的函数
 # 访问 http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act=server_stat 查询当前支持的 client_build
@@ -68,11 +68,11 @@ ACTION() {
 
 # 发送 client_suspend 后，更新端口信息
 # 更新后，发送 client_settings 验证端口
-ACTION client_suspend >/dev/null
-while :; do
+[ -z "$SKIP" ] && ACTION client_suspend >/dev/null
+while [ -z "$SKIP" ]; do
 	let SET++
  	if [ $SET -gt 3 ]; then
-  		echo -n $OWNNAME: Failed to update the external port. Please check the PROXY. >&2
+  		logger -st $OWNNAME Failed to update the external port. Please check the PROXY.
     	exit 1
 	fi
 	[ $SET -ne 1 ] && sleep 15
@@ -89,15 +89,15 @@ while :; do
 	-d ''$DATA'' \
 	'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
 	ACTION client_settings | grep port=$WANPORT >/dev/null && \
-	echo -n $OWNNAME: The external port is updated successfully. && break
+	logger -st $OWNNAME The external port is updated successfully. && break
 done
 
-# 发送 client_start 后，校验响应消息
+# 发送 client_start 后，检测是否需要启动 H@H 客户端
 # 若客户端已启动，则自动恢复连接，无需重启
 # 若客户端未启动，client_suspend 与 client_start 不会造成实质影响
-# 本脚本不启动 H@H 客户端，请自行在运行设备上启动
-# 启动命令末尾加上参数 --port=44388，指定客户端的本地监听端口 (APPPORT)
-# 必须在穿透成功后再启动，否则无法完成初始化，客户端将拒绝连接请求
-# [[ $(ACTION client_start | head -1) != "OK" ]] && \
-ACTION client_start
-echo -n Now please check that the client is running correctly.
+ACTION client_start >/dev/null
+if [ $HATHDIR != /tmp ]; then
+	screen -ls | grep $OWNNAME || \
+	screen -dmS $OWNNAME java -jar $HATHDIR/HentaiAtHome.jar --port=44388
+fi
+logger -st $OWNNAME Now please check that the client is running correctly.
