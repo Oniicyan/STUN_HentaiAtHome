@@ -108,6 +108,8 @@ for /F %%a in ('wmic process where %MATCH:\=\\% get ProcessId 2^>nul') do (
 	echo %%a| findstr "^[0-9]*$" >nul && goto DONE
 )
 
+timeout 5 /NOBREAK >nul
+
 :: 若未启动 H@H，则降权执行
 runas /trustlevel:0x20000 "javaw -Xms16m -Xmx512m -jar %HATHDIR%\HentaiAtHomeGUI.jar --silentstart --port=%APPPORT%" >nul && goto DONE
 :: Windows 11 22H2 及部分版本 runas 存在 Bug，需指定 /machine
