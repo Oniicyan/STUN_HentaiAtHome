@@ -42,19 +42,21 @@ Linux: 建议使用 `screen`
 
 建议使用路由器的端口映射（或叫“**虚拟服务器**”），本文档示例使用 **OpenWrt**
 
-本脚本使用的默认端口
+### OpenWrt
+
+![图片](https://github.com/user-attachments/assets/7dca081d-c226-4c2c-bbf3-c0931603d631)
+
+* `协议`：`TCP`
 
 * `外部端口`：`44377`
   
   对应 **NATMap** 中的 **绑定端口** 或 **Lucky** 中的 **穿透通道本地端口**
+
+* `内部 IP 地址`：H@H 客户端运行设备的 IPv4 地址
   
 * `内部端口`：`44388`
 
   H@H 客户端的本地监听端口，对应启动参数 `--port=<port>`
-
-`内部 IP 地址` 即 H@H 客户端运行设备的 IPv4 地址
-
-![图片](https://github.com/user-attachments/assets/7dca081d-c226-4c2c-bbf3-c0931603d631)
 
 ---
 
