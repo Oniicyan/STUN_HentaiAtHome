@@ -19,7 +19,6 @@ set TRYGET=0
 set TRYSET=0
 
 :: 保存穿透信息
-echo %date%%time% tcp %WANADDR%:%WANPORT% -^> :%APPPORT% >stun_hath.info
 echo %date%%time% tcp %WANADDR%:%WANPORT% -^> :%APPPORT% >>stun_hath.log
 
 :: 获取 H@H 设置信息
