@@ -13,6 +13,12 @@ set EHIPBPW=%7
 set HATHDIR=%8
 echo %9 | findstr :// >nul && set PROXY=-x %9
 
+:: 防止脚本重复执行
+set MATCH="CommandLine like '%%%~0%%' and Not CommandLine like '%%%WANADDR% %WANPORT%%%'"
+for /F %%a in ('wmic process where %MATCH:\=\\% get ProcessId') do (
+	echo %%a| findstr "^[0-9]*$" >nul && taskkill /PID %%a
+)
+
 :: 初始化
 cd /D %HATHDIR%
 set TRYGET=0
