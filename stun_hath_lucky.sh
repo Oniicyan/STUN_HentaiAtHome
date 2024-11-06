@@ -13,7 +13,7 @@ EHIPBPW=$7  # ipb_pass_hash
 HATHDIR=$8	# H@H 客户端所在路径；留空则不自动执行（留空时传递 /tmp）
 [ -n "$9" ] && PROXY=$(echo "-x $9") # 可用的代理协议、地址与端口；留空则不使用代理
 
-OWNNAME=$(basename -s .sh $0)
+OWNNAME=stun_hath_$HATHCID
 
 # 防止脚本重复运行
 PIDNF=$( ( ps aux 2>/dev/null; ps ) | awk '{for(i=1;i<=NF;i++)if($i=="PID")n=i}NR==1{print n}' )
@@ -22,7 +22,7 @@ while :; do
 done
 
 # 保存穿透信息
-echo $(date) $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT >>$HATHDIR/$OWNNAME.log
+echo $(date) $L4PROTO $WANADDR:$WANPORT $([ -n "$LANPORT" ] && echo '->' $OWNADDR:$LANPORT) >>$HATHDIR/$OWNNAME.log
 
 # 获取 H@H 设置信息
 while [ -z $f_cname ]; do
