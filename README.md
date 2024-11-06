@@ -185,6 +185,8 @@ EHIPBPW=0123456789abcdef0123456789abcdef  # ipb_pass_hash
 
 **注意实际的接口名称**
 
+**如要屏蔽日志输出，需编辑配置文件**
+
 ```
 config natmap
 	option udp_mode '0'
@@ -194,6 +196,8 @@ config natmap
 	option http_server 'qq.com'
 	option port '44377'
 	option notify_script '/usr/stun_hath_natmap.sh'
+	option log_stdout '0'
+	option log_stderr '0'
 	option enable '1'
 ```
 
