@@ -44,7 +44,11 @@ Linux: 建议使用 `screen`
 
 ### OpenWrt
 
-![图片](https://github.com/user-attachments/assets/7dca081d-c226-4c2c-bbf3-c0931603d631)
+![图片](https://github.com/user-attachments/assets/6d547218-5a66-4c0f-9786-2eb33aa7b5e1)
+
+* `地址族限制`：`仅 IPv4`
+
+  仅针对 IPv4 进行穿透，并非所有路由器都有此选项
 
 * `协议`：`TCP`
 
@@ -52,7 +56,9 @@ Linux: 建议使用 `screen`
   
   对应 **NATMap** 中的 **绑定端口** 或 **Lucky** 中的 **穿透通道本地端口**
 
-* `内部 IP 地址`：H@H 客户端运行设备的 IPv4 地址
+* `内部 IP 地址`
+
+  H@H 客户端运行设备的 IPv4 地址
   
 * `内部端口`：`44388`
 
@@ -62,7 +68,7 @@ Linux: 建议使用 `screen`
 
 **OpenWrt** 上配置端口映射时，`目标区域` 与 `内部 IP 地址` 留空则代表路由器自身
 
-![图片](https://github.com/user-attachments/assets/9c7cfb82-eedb-4dd0-a19c-f143b7e71d74)
+![图片](https://github.com/user-attachments/assets/f7c3074c-3f00-4255-9604-839e267301b2)
 
 保存后如下
 
