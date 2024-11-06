@@ -13,7 +13,7 @@ LANPORT=$4
 L4PROTO=$5
 OWNADDR=$6
 
-OWNNAME=$(basename -s .sh $0)
+OWNNAME=stun_hath_$HATHCID
 [ -n "$PROXY" ] && PROXY=$(echo "-x $PROXY")
 [ -z "$HATHDIR" ] && HATHDIR=/tmp
 
@@ -24,7 +24,7 @@ while :; do
 done
 
 # 保存穿透信息
-echo $(date) $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT >>$HATHDIR/$OWNNAME.log
+echo $(date) $L4PROTO $WANADDR:$WANPORT $([ -n "$LANPORT" ] && echo '->' $OWNADDR:$LANPORT) >>$HATHDIR/$OWNNAME.log
 
 # 获取 H@H 设置信息
 while [ -z $f_cname ]; do
