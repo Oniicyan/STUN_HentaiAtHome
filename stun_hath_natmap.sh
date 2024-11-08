@@ -53,7 +53,7 @@ done
 
 # 检测是否需要更改端口
 [ "$(grep f_port $HATHPHP | awk -F '"' '{print$6}')" = $WANPORT ] && \
-logger -st $OWNNAME The external port has not changed. && SKIP=1
+logger -st $OWNNAME The external port $WANPORT/tcp has not changed. && SKIP=1
 
 # 定义与 RPC 服务器交互的函数
 # 访问 http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act=server_stat 查询当前支持的 client_build
