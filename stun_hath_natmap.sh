@@ -87,13 +87,13 @@ while [ -z "$SKIP" ]; do
 	-d ''$DATA'' \
 	'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
 	ACTION client_settings | grep port=$WANPORT >/dev/null && \
-	logger -st $OWNNAME The external port is updated successfully. && break
+	logger -st $OWNNAME The external port $WANPORT/tcp is updated successfully. && break
 done
 
 # 发送 client_start 后，检测是否需要启动 H@H 客户端
 # 若客户端已启动，则自动恢复连接，无需重启
 # 若客户端未启动，client_suspend 与 client_start 不会造成实质影响
-ACTION client_start >/dev/null
+[ -z "$SKIP" ] && ACTION client_start >/dev/null
 if [ $HATHDIR != /tmp ]; then
 	sleep 5 && cd $HATHDIR
 	screen -ls | grep $OWNNAME || \
