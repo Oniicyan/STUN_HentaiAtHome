@@ -244,13 +244,13 @@ sh /usr/stun_hath_lucky.sh ${ip} ${port} $APPPORT $HATHCID $HATHKEY $EHIPBID $EH
 自定义脚本内容如下，请正确编辑变量内容
 
 ```
-set PROXY=socks5://192.168.1.168:10808        :: 可用的代理协议、地址与端口；留空则不使用代理
-set HATHDIR=D:\HentaiAtHome                   :: H@H 客户端所在路径；留空则不自动执行（非本机客户端请留空）
-set APPPORT=44388                             :: H@H 客户端的监听端口，对应启动参数 --port=<port>
-set HATHCID=12345                             :: H@H 客户端 ID (Client ID)
-set HATHKEY=12345abcde12345ABCDE              :: H@H 客户端密钥 (Client Key)
-set EHIPBID=1234567                           :: ipb_member_id
-set EHIPBPW=0123456789abcdef0123456789abcdef  :: ipb_pass_hash
+set PROXY=socks5://192.168.1.168:10808
+set HATHDIR=D:\HentaiAtHome
+set APPPORT=44388
+set HATHCID=12345
+set HATHKEY=12345abcde12345ABCDE
+set EHIPBID=1234567
+set EHIPBPW=0123456789abcdef0123456789abcdef
 
 if NOT EXIST %HATHDIR% set HATHDIR=%TEMP%
 if NOT EXIST %HATHDIR%\stun_hath.cmd ^
@@ -260,6 +260,20 @@ curl -Lso %HATHDIR%\stun_hath.cmd https://gitee.com/oniicyan/stun_hath/raw/maste
 ```
 
 默认使用国内镜像，脚本地址可改为 `stun-hath.pages.dev/cmd`
+
+变量说明（请勿粘贴注释内容）
+
+```
+PROXY=socks5://192.168.1.168:10808        :: 可用的代理协议、地址与端口；留空则不使用代理
+HATHDIR=D:\HentaiAtHome                   :: H@H 客户端所在路径；留空则不自动执行（非本机客户端请留空）
+APPPORT=44388                             :: H@H 客户端的监听端口，对应启动参数 --port=<port>
+HATHCID=12345                             :: H@H 客户端 ID (Client ID)
+HATHKEY=12345abcde12345ABCDE              :: H@H 客户端密钥 (Client Key)
+EHIPBID=1234567                           :: ipb_member_id
+EHIPBPW=0123456789abcdef0123456789abcdef  :: ipb_pass_hash
+```
+
+---
 
 需要调试时，请把最后一行改为
 
