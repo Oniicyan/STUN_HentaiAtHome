@@ -272,10 +272,15 @@ HATHKEY=12345abcde12345ABCDE              :: H@H 客户端密钥 (Client Key)
 EHIPBID=1234567                           :: ipb_member_id
 EHIPBPW=0123456789abcdef0123456789abcdef  :: ipb_pass_hash
 ```
+### 调试脚本
 
----
+Lucky 需要调试时，请修改自定义脚本的最后一行，以输出结果
 
-需要调试时，请把最后一行改为
+Linux
+
+`sh /usr/stun_hath_lucky.sh ${ip} ${port} $APPPORT $HATHCID $HATHKEY $EHIPBID $EHIPBPW $HATHDIR $PROXY >$HATHDIR/stun_hath.log`
+
+Windows
 
 `%HATHDIR%\stun_hath.cmd ${ip} ${port} %APPPORT% %HATHCID% %HATHKEY% %EHIPBID% %EHIPBPW% %HATHDIR% %PROXY% >%HATHDIR%\stun_hath.log 2>&1`
 
