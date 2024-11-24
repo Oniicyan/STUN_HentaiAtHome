@@ -260,3 +260,9 @@ curl -Lso %HATHDIR%\stun_hath.cmd https://gitee.com/oniicyan/stun_hath/raw/maste
 ```
 
 默认使用国内镜像，脚本地址可改为 `stun-hath.pages.dev/cmd`
+
+需要调试时，请把最后一行改为
+
+`%HATHDIR%\stun_hath.cmd ${ip} ${port} %APPPORT% %HATHCID% %HATHKEY% %EHIPBID% %EHIPBPW% %HATHDIR% %PROXY% >%HATHDIR%\stun_hath.log 2>&1`
+
+将会在 H@H 目录或临时文件夹输出 `stun_hath.log`，包含实际执行的命令及结果
