@@ -143,7 +143,7 @@ set APPPORT=44388 --disable-ip-origin-check
 
 ---
 
-由于 `APPPORT` 变量会在启动 H@H 客户端时调用，除了 `--disable-ip-origin-check` 外还可以附加其他参数
+由于 `APPPORT` 变量会在脚本启动 H@H 客户端时被调用，除了 `--disable-ip-origin-check` 外还可以附加其他参数
 
 在需要使用代理下载图库时，可改为如下
 
