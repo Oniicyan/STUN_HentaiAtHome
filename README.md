@@ -278,10 +278,10 @@ Lucky 需要调试时，请修改自定义脚本的最后一行
 
 Linux
 
-`sh /usr/stun_hath_lucky.sh ${ip} ${port} $APPPORT $HATHCID $HATHKEY $EHIPBID $EHIPBPW $HATHDIR $PROXY >$HATHDIR/stun_hath.log`
+`sh /usr/stun_hath_lucky.sh ${ip} ${port} $APPPORT $HATHCID $HATHKEY $EHIPBID $EHIPBPW $HATHDIR $PROXY >$HATHDIR/stun_hath.output`
 
 Windows
 
-`%HATHDIR%\stun_hath.cmd ${ip} ${port} %APPPORT% %HATHCID% %HATHKEY% %EHIPBID% %EHIPBPW% %HATHDIR% %PROXY% >%HATHDIR%\stun_hath.log 2>&1`
+`%HATHDIR%\stun_hath.cmd ${ip} ${port} %APPPORT% %HATHCID% %HATHKEY% %EHIPBID% %EHIPBPW% %HATHDIR% %PROXY% >%HATHDIR%\stun_hath.output 2>&1`
 
-将会在 H@H 目录或临时文件夹输出 `stun_hath.log`，包含实际执行的命令及结果
+将会在 H@H 目录或临时文件夹输出 `stun_hath.output`，包含实际执行的命令及结果
