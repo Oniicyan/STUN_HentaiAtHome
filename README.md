@@ -261,7 +261,7 @@ curl -Lso %HATHDIR%\stun_hath.cmd https://gitee.com/oniicyan/stun_hath/raw/maste
 
 默认使用国内镜像，脚本地址可改为 `stun-hath.pages.dev/cmd`
 
-变量说明（请勿粘贴注释内容）
+变量说明（**请勿粘贴注释内容**）
 
 ```
 PROXY=socks5://192.168.1.168:10808        :: 可用的代理协议、地址与端口；留空则不使用代理
