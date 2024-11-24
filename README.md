@@ -129,13 +129,13 @@ iptables -t nat -I PREROUTING -i pppoe-wancm -p tcp --dport 44377 -m comment --c
 
 **若使用通知脚本启动 H@H 客户端**，可修改 `APPPORT` 变量以附加启动参数
 
-Linux（单引号与空格不可省略）
+**Linux（单引号与空格不可省略）**
 
 ```
 APPPORT=44388' --disable-ip-origin-check'
 ```
 
-Windows
+**Windows**
 
 ```
 set APPPORT=44388 --disable-ip-origin-check
@@ -147,13 +147,13 @@ set APPPORT=44388 --disable-ip-origin-check
 
 在需要使用代理下载图库时，可改为如下
 
-Linux（单引号与空格不可省略）
+**Linux（单引号与空格不可省略）**
 
 ```
 APPPORT=44388' --image-proxy-host=127.0.0.1 --image-proxy-type=socks --image-proxy-port=10808'
 ```
 
-Windows
+**Windows**
 
 ```
 set APPPORT=44388 --image-proxy-host=127.0.0.1 --image-proxy-type=socks --image-proxy-port=10808
