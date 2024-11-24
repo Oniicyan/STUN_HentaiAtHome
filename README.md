@@ -274,7 +274,7 @@ EHIPBPW=0123456789abcdef0123456789abcdef  :: ipb_pass_hash
 ```
 ### 调试脚本
 
-Lucky 需要调试时，请修改自定义脚本的最后一行，以输出结果
+Lucky 需要调试时，请修改自定义脚本的最后一行
 
 Linux
 
