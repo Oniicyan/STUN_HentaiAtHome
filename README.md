@@ -36,6 +36,26 @@ Linux: 建议使用 `screen`
 
 # 准备工作
 
+## 测试代理
+
+在 NATMap 或 Lucky 的运行设备上测试 `curl` 是否能够直接访问 `https://e-hentai.org`
+
+`curl -m 5 https://e-hentai.org/hentaiathome.php`
+
+该命令不会有任何反馈，无任何报错则表示成功
+
+若提示超时，则表示需要使用代理
+
+测试以下命令，注意代理的协议、地址与端口
+
+`curl -x socks5://127.0.0.1:10808 -m 5 https://e-hentai.org/hentaiathome.php`
+
+部分代理客户端需要手动添加 `e-hentai.org` 到代理规则
+
+若提示 `curl: (35) schannel: failed to receive handshake, SSL/TLS connection failed`，可尝试使用 **HTTP 代理**
+
+`curl -x http://127.0.0.1:7899 -m 5 https://e-hentai.org/hentaiathome.php`
+
 ## 端口映射
 
 本脚本不再自动配置端口映射，请手动操作
@@ -109,7 +129,7 @@ iptables -t nat -I PREROUTING -i pppoe-wancm -p tcp --dport 44377 -m comment --c
 
 **若使用通知脚本启动 H@H 客户端**，可修改 `APPPORT` 变量以附加启动参数
 
-Linux
+Linux（单引号与空格不可省略）
 
 ```
 APPPORT=44388' --disable-ip-origin-check'
@@ -121,25 +141,23 @@ Windows
 set APPPORT=44388 --disable-ip-origin-check
 ```
 
-## 测试代理
+---
 
-在穿透设备上执行以下命令测试 `curl` 是否能够直接访问 `https://e-hentai.org`
+由于 `APPPORT` 变量会在启动 H@H 客户端时调用，除了 `--disable-ip-origin-check` 外还可以附加其他参数
 
-`curl -m 5 https://e-hentai.org/hentaiathome.php`
+在需要使用代理下载图库时，可改为如下
 
-该命令不会有任何反馈，无任何报错则表示成功
+Linux（单引号与空格不可省略）
 
-若提示超时，则表示需要使用代理
+```
+APPPORT=44388' --image-proxy-host=127.0.0.1 --image-proxy-type=socks --image-proxy-port=10808'
+```
 
-测试以下命令，注意代理的协议、地址与端口
+Windows
 
-`curl -x socks5://127.0.0.1:10808 -m 5 https://e-hentai.org/hentaiathome.php`
-
-部分代理客户端需要手动添加 `e-hentai.org` 到代理规则
-
-若提示 `curl: (35) schannel: failed to receive handshake, SSL/TLS connection failed`，可尝试使用 **HTTP 代理**
-
-`curl -x http://127.0.0.1:7899 -m 5 https://e-hentai.org/hentaiathome.php`
+```
+set APPPORT=44388 --image-proxy-host=127.0.0.1 --image-proxy-type=socks --image-proxy-port=10808
+```
 
 ## 获取账号 Cookie
 
