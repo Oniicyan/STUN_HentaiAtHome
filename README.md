@@ -103,7 +103,43 @@ iptables -t nat -I PREROUTING -i pppoe-wancm -p tcp --dport 44377 -m comment --c
 
 建议仅在无法对路由器配置端口映射时，才使用 Lucky 或其他用户态端口转发工具
 
-由于用户态转发会改变数据包源地址，需要在 H@H 客户端的启动参数中加上 `--disable-ip-origin-check `
+使用 Lucky 内置转发时，请**禁用通道有效性检测**
+
+由于用户态转发会改变数据包源地址，需要在 H@H 客户端的启动参数中加上 `--disable-ip-origin-check`
+
+可修改 `APPPORT` 变量以附加启动参数
+
+Linux
+
+```
+APPPORT=44388' --disable-ip-origin-check'
+```
+
+Windows
+
+```
+set APPPORT=44388 --disable-ip-origin-check
+```
+
+## 测试代理
+
+在穿透设备上执行以下命令测试 `curl` 是否能够直接访问 `https://e-hentai.org`
+
+`curl -m 5 https://e-hentai.org/hentaiathome.php`
+
+该命令不会有任何反馈，无任何报错则表示成功
+
+若提示超时，则表示需要使用代理
+
+测试以下命令，注意代理的协议、地址与端口
+
+`curl -x socks5://127.0.0.1:10808 -m 5 https://e-hentai.org/hentaiathome.php`
+
+部分代理客户端需要手动添加 `e-hentai.org` 到代理规则
+
+若提示 `curl: (35) schannel: failed to receive handshake, SSL/TLS connection failed`，可尝试使用 **HTTP 代理**
+
+`curl -x http://127.0.0.1:7899 -m 5 https://e-hentai.org/hentaiathome.php`
 
 ## 获取账号 Cookie
 
@@ -278,10 +314,15 @@ Lucky 需要调试时，请修改自定义脚本的最后一行
 
 Linux
 
-`sh /usr/stun_hath_lucky.sh ${ip} ${port} $APPPORT $HATHCID $HATHKEY $EHIPBID $EHIPBPW $HATHDIR $PROXY >$HATHDIR/stun_hath.output`
+```
+sh -x /usr/stun_hath_lucky.sh ${ip} ${port} $APPPORT $HATHCID $HATHKEY $EHIPBID $EHIPBPW $HATHDIR $PROXY >$HATHDIR/stun_hath.output
+```
 
 Windows
 
-`%HATHDIR%\stun_hath.cmd ${ip} ${port} %APPPORT% %HATHCID% %HATHKEY% %EHIPBID% %EHIPBPW% %HATHDIR% %PROXY% >%HATHDIR%\stun_hath.output 2>&1`
+```
+echo on
+%HATHDIR%\stun_hath.cmd ${ip} ${port} %APPPORT% %HATHCID% %HATHKEY% %EHIPBID% %EHIPBPW% %HATHDIR% %PROXY% >%HATHDIR%\stun_hath.output 2>&1
+```
 
 将会在 H@H 目录或临时文件夹输出 `stun_hath.output`，包含实际执行的命令及结果
