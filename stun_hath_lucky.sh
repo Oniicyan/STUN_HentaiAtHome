@@ -95,6 +95,6 @@ done
 if [ $HATHDIR != /tmp ]; then
 	sleep 5 && cd $HATHDIR
 	screen -ls | grep $OWNNAME || \
-	screen -dmS $OWNNAME java -jar $HATHDIR/HentaiAtHome.jar --port=44388
+	screen -dmS $OWNNAME java -jar $HATHDIR/HentaiAtHome.jar --port=$APPPORT
 fi
 logger -st $OWNNAME Now please confirm if the client is running correctly.
