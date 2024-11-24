@@ -103,11 +103,11 @@ iptables -t nat -I PREROUTING -i pppoe-wancm -p tcp --dport 44377 -m comment --c
 
 建议仅在无法对路由器配置端口映射时，才使用 Lucky 或其他用户态端口转发工具
 
-使用 Lucky 内置转发时，请**禁用通道有效性检测**
+使用 Lucky 内置转发时，请 **禁用通道有效性检测**
 
 由于用户态转发会改变数据包源地址，需要在 H@H 客户端的启动参数中加上 `--disable-ip-origin-check`
 
-可修改 `APPPORT` 变量以附加启动参数
+**若使用通知脚本启动 H@H 客户端**，可修改 `APPPORT` 变量以附加启动参数
 
 Linux
 
