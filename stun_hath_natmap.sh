@@ -17,6 +17,9 @@ OWNNAME=stun_hath_$HATHCID
 [ -n "$PROXY" ] && PROXY=$(echo "-x $PROXY")
 [ -z "$HATHDIR" ] && HATHDIR=/tmp
 
+curl -V >/dev/null || (logger -st $OWNNAME Please install curl.; exit 127)
+sha1sum --version >/dev/null || (logger -st $OWNNAME Please install coreutils-sha1sum; exit 127)
+
 # 防止脚本重复运行
 PIDNF=$( ( ps aux 2>/dev/null; ps ) | awk '{for(i=1;i<=NF;i++)if($i=="PID")n=i}NR==1{print n}' )
 while :; do
@@ -95,8 +98,13 @@ done
 # 若客户端未启动，client_suspend 与 client_start 不会造成实质影响
 [ -z "$SKIP" ] && ACTION client_start >/dev/null
 if [ $HATHDIR != /tmp ]; then
-	sleep 5 && cd $HATHDIR
-	screen -ls | grep $OWNNAME || \
-	screen -dmS $OWNNAME java -jar $HATHDIR/HentaiAtHome.jar --port=$APPPORT
+	if screen -v >/dev/null; then
+		sleep 5 && cd $HATHDIR
+		screen -ls | grep $OWNNAME || \
+		screen -dmS $OWNNAME java -jar $HATHDIR/HentaiAtHome.jar --port=44388
+	else
+		logger -st $OWNNAME Please install screen.
+	fi
 fi
+
 logger -st $OWNNAME Now please confirm if the client is running correctly.
