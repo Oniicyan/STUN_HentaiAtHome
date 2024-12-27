@@ -1,10 +1,10 @@
-name: Update IPLIST
+name: Update STUN servers
 on:
  schedule:
  - cron: 50 23 * * *
  workflow_dispatch:
 jobs:
- IPLIST:
+ Update:
    runs-on: ubuntu-latest
    steps:
      - uses: actions/checkout@v4
