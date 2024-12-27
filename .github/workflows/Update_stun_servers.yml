@@ -15,7 +15,7 @@ jobs:
           IP=$(echo $SERVER | awk -F : '{print$1}')
           PORT=$(echo $SERVER | awk -F : '{print$2}')
           HEX=$(echo "000100002112a442$(uuidgen | head -c 12 | xxd -p)" | xxd -r -p | nc -w 1 $IP $PORT | xxd -p -c 0)
-          echo "$HEX" | grep 002000080001 && echo $IP:$PORT >>stun_servers.txt
+          echo $HEX | grep 002000080001 && echo $IP:$PORT >>stun_servers.txt
          done
          git config --local user.name ${GITHUB_ACTOR}
          git config --local user.email ${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com
