@@ -1,0 +1,28 @@
+name: Update IPLIST
+on:
+ schedule:
+ - cron: 50 23 * * *
+ workflow_dispatch:
+jobs:
+ IPLIST:
+   runs-on: ubuntu-latest
+   steps:
+     - uses: actions/checkout@v4
+     - run: |
+         curl -Lso stun_ipv4.txt https://raw.githubusercontent.com/pradt2/always-online-stun/refs/heads/master/valid_ipv4s_tcp.txt
+         echo $(nslookup turn.cloudflare.com 1.1.1.1 | grep -v 1.1.1.1 | grep -m 1 -oE '([0-9]*\.){3}[0-9]*'):3478 >stun_servers.txt
+         for SERVER in $(cat stun_ipv4); do
+         	IP=$(echo $SERVER | awk -F : '{print$1}')
+         	PORT=$(echo $SERVER | awk -F : '{print$2}')
+         	HEX=$(echo "000100002112a442$(cat /dev/random | head -c 12 | xxd -p)" | xxd -r -p | ncat -w 1 -p 33456 $IP $PORT 2>/dev/null | xxd -p -c 80 | grep -oE '002000080001.{12}')
+         	[ -n "$HEX" ] && echo $IP:$PORT >>stun_servers.txt
+         done
+         git config --local user.name ${GITHUB_ACTOR}
+         git config --local user.email ${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com
+         git add stun_servers.txt
+         git commit -m "Update stun_servers.txt" || exit 0
+     - name: Push changes
+       uses: ad-m/github-push-action@master
+       with:
+         github_token: ${{ secrets.GITHUB_TOKEN }}
+         branch: ${{ github.ref }}
