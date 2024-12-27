@@ -14,7 +14,7 @@ jobs:
          for SERVER in $(cat stun_ipv4.txt); do
          	IP=$(echo $SERVER | awk -F : '{print$1}')
          	PORT=$(echo $SERVER | awk -F : '{print$2}')
-         	HEX=$(echo "000100002112a442$(cat /dev/random | head -c 12 | xxd -p)" | xxd -r -p | ncat -w 1 -p 33456 $IP $PORT 2>/dev/null | xxd -p -c 80 | grep -oE '002000080001.{12}')
+         	HEX=$(echo "000100002112a442$(cat /dev/urandom | head -c 12 | xxd -p)" | xxd -r -p | ncat -w 1 -p 33456 $IP $PORT 2>/dev/null | xxd -p -c 80 | grep -oE '002000080001.{12}')
          	[ -n "$HEX" ] && echo $IP:$PORT >>stun_servers.txt
          done
          git config --local user.name ${GITHUB_ACTOR}
