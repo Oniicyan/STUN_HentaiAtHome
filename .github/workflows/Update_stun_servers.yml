@@ -10,12 +10,11 @@ jobs:
      - uses: actions/checkout@v4
      - run: |
          curl -Lso stun_ipv4.txt https://raw.githubusercontent.com/pradt2/always-online-stun/refs/heads/master/valid_ipv4s_tcp.txt
-         echo $(nslookup turn.cloudflare.com 1.1.1.1 | grep -v 1.1.1.1 | grep -m 1 -oE '([0-9]*\.){3}[0-9]*'):3478 >stun_servers.txt
+         echo $(nslookup turn.cloudflare.com 8.8.8.8 | grep -v 8.8.8.8 | grep -m 1 -oE '([0-9]*\.){3}[0-9]*'):3478 >stun_servers.txt
          for SERVER in $(cat stun_ipv4.txt); do
           IP=$(echo $SERVER | awk -F : '{print$1}')
          	PORT=$(echo $SERVER | awk -F : '{print$2}')
-          uuidgen | head -c 12 | xxd -p  >>stun_servers.txt
-         	# HEX=$(echo "000100002112a442$(cat /dev/urandom | head -c 12 | xxd -p)" | xxd -r -p | ncat -w 1 -p 33456 $IP $PORT 2>/dev/null | xxd -p -c 80 | grep -oE '002000080001.{12}')
+         	HEX=$(echo "000100002112a442$(uuidgen | head -c 12 | xxd -p)" | xxd -r -p | ncat -w 1 -p 33456 $IP $PORT 2>/dev/null | xxd -p -c 80 | grep -oE '002000080001.{12}')
          	[ -n "$HEX" ] && echo $IP:$PORT >>stun_servers.txt
          done
          git config --local user.name ${GITHUB_ACTOR}
