@@ -30,13 +30,10 @@ echo $(date) $L4PROTO $WANADDR:$WANPORT $([ -n "$LANPORT" ] && echo '->' $OWNADD
 # 获取 H@H 客户端设置信息
 while [ -z $f_cname ]; do
 	let GET++
- 	if [ $GET -gt 3 ]; then
-  		logger -st $OWNNAME Failed to get the settings. Please check the PROXY.
-    	exit 1
-	fi
- 	[ $GET -ne 1 ] && sleep 15
+ 	[ $GET -gt 3 ] && logger -st $OWNNAME Failed to get the settings. Please check the PROXY. && exit 1
+ 	[ $GET -ne 1 ] && logger -st $OWNNAME Failed to get the settings. Wait 15 seconds ... && sleep 15
 	HATHPHP=/tmp/$OWNNAME.php
-	echo >$HATHPHP
+	>$HATHPHP
 	curl $PROXY -Ls -m 15 \
 	-b 'ipb_member_id='$EHIPBID'; ipb_pass_hash='$EHIPBPW'' \
 	-o $HATHPHP \
@@ -62,26 +59,23 @@ ACTION() {
 	ACT=$1
 	ACTTIME=$(date +%s)
 	ACTKEY=$(echo -n "hentai@home-$ACT--$HATHCID-$ACTTIME-$HATHKEY" | sha1sum | cut -c -40)
-	curl -Ls "http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act=$ACT&add=&cid=$HATHCID&acttime=$ACTTIME&actkey=$ACTKEY"
+	curl -Ls 'http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act='$ACT'&add=&cid='$HATHCID'&acttime='$ACTTIME'&actkey='$ACTKEY''
 }
 
 # 发送 client_suspend 后，更新端口信息
 # 更新后，发送 client_settings 验证端口
-[ -z "$SKIP" ] && ACTION client_suspend >/dev/null
-while [ -z "$SKIP" ]; do
+[ $SKIP ] || ACTION client_suspend >/dev/null
+while [ ! $SKIP ]; do
 	let SET++
- 	if [ $SET -gt 3 ]; then
-  		logger -st $OWNNAME Failed to update the external port. Please check the PROXY.
-    	exit 1
-	fi
-	[ $SET -ne 1 ] && sleep 15
-	DATA="settings=1&f_port=$WANPORT&f_cname=$f_cname&f_throttle_KB=$f_throttle_KB&f_disklimit_GB=$f_disklimit_GB"
-	[ "$p_mthbwcap" = 0 ] || DATA="$DATA&p_mthbwcap=$p_mthbwcap"
-	[ "$f_diskremaining_MB" = 0 ] || DATA="$DATA&f_diskremaining_MB=$f_diskremaining_MB"
-	[ -n "$f_enable_bwm" ] && DATA="$DATA&f_enable_bwm=on"
-	[ -n "$f_disable_logging" ] && DATA="$DATA&f_disable_logging=on"
-	[ -n "$f_use_less_memory" ] && DATA="$DATA&f_use_less_memory=on"
-	[ -n "$f_is_hathdler" ] && DATA="$DATA&f_is_hathdler=on"
+ 	[ $SET -gt 3 ] && logger -st $OWNNAME Failed to update the external port. Please check the PROXY. && exit 1
+	[ $SET -ne 1 ] && logger -st $OWNNAME Failed to update the external port. Wait 15 seconds ... && sleep 15
+	DATA='settings=1&f_port='$WANPORT'&f_cname='$f_cname'&f_throttle_KB='$f_throttle_KB'&f_disklimit_GB='$f_disklimit_GB''
+	[ "$p_mthbwcap" = 0 ] || DATA=''$DATA'&p_mthbwcap='$p_mthbwcap''
+	[ "$f_diskremaining_MB" = 0 ] || DATA=''$DATA'&f_diskremaining_MB='$f_diskremaining_MB''
+	[ $f_enable_bwm ] && DATA=''$DATA'&f_enable_bwm=on'
+	[ $f_disable_logging ] && DATA=''$DATA'&f_disable_logging=on'
+	[ $f_use_less_memory ] && DATA=''$DATA'&f_use_less_memory=on'
+	[ $f_is_hathdler ] && DATA=''$DATA'&f_is_hathdler=on'
 	curl $PROXY -Ls -m 15 \
 	-b 'ipb_member_id='$EHIPBID'; ipb_pass_hash='$EHIPBPW'' \
 	-o $HATHPHP \
@@ -94,7 +88,7 @@ done
 # 发送 client_start 后，检测是否需要启动 H@H 客户端
 # 若客户端已启动，则自动恢复连接，无需重启
 # 若客户端未启动，client_suspend 与 client_start 不会造成实质影响
-[ -z "$SKIP" ] && ACTION client_start >/dev/null
+[ $SKIP ] || ACTION client_start >/dev/null
 if [ $HATHDIR != /tmp ]; then
 	if screen -v >/dev/null; then
 		sleep 5 && cd $HATHDIR
