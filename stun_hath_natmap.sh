@@ -33,7 +33,7 @@ echo $(date) $L4PROTO $WANADDR:$WANPORT $([ -n "$LANPORT" ] && echo '->' $OWNADD
 while [ -z $f_cname ]; do
 	let GET++
  	[ $GET -gt 3 ] && logger -st $OWNNAME Failed to get the settings. Please check the PROXY. && exit 1
- 	[ $GET -ne 1 ] && logger -st $OWNNAME Failed to get the settings. Wait 15 seconds ... &&sleep 15
+ 	[ $GET -ne 1 ] && logger -st $OWNNAME Failed to get the settings. Wait 15 seconds ... && sleep 15
 	HATHPHP=/tmp/$OWNNAME.php
 	>$HATHPHP
 	curl $PROXY -Ls -m 15 \
