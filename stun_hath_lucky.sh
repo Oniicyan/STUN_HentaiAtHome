@@ -10,7 +10,7 @@ HATHCID=$4  # H@H 客户端 ID (Client ID)
 HATHKEY=$5  # H@H 客户端密钥 (Client Key)
 EHIPBID=$6  # ipb_member_id
 EHIPBPW=$7  # ipb_pass_hash
-HATHDIR=$8	# H@H 客户端所在路径；留空则不自动执行（留空时传递 /tmp）
+HATHDIR=$8  # H@H 客户端所在路径；留空则不自动执行（留空时传递 /tmp）
 [ -n "$9" ] && PROXY=$(echo "-x $9") # 可用的代理协议、地址与端口；留空则不使用代理
 
 OWNNAME=stun_hath_$HATHCID
@@ -27,7 +27,7 @@ done
 # 保存穿透信息
 echo $(date) $L4PROTO $WANADDR:$WANPORT $([ -n "$LANPORT" ] && echo '->' $OWNADDR:$LANPORT) >>$HATHDIR/$OWNNAME.log
 
-# 获取 H@H 设置信息
+# 获取 H@H 客户端设置信息
 while [ -z $f_cname ]; do
 	let GET++
  	if [ $GET -gt 3 ]; then
@@ -99,7 +99,7 @@ if [ $HATHDIR != /tmp ]; then
 	if screen -v >/dev/null; then
 		sleep 5 && cd $HATHDIR
 		screen -ls | grep $OWNNAME || \
-		screen -dmS $OWNNAME java -jar $HATHDIR/HentaiAtHome.jar --port=44388
+		screen -dmS $OWNNAME java -jar $HATHDIR/HentaiAtHome.jar --port=$APPPORT
 	else
 		logger -st $OWNNAME Please install screen.
 	fi
