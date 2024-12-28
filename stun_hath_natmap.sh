@@ -29,7 +29,7 @@ done
 # 保存穿透信息
 echo $(date) $L4PROTO $WANADDR:$WANPORT $([ -n "$LANPORT" ] && echo '->' $OWNADDR:$LANPORT) >>$HATHDIR/$OWNNAME.log
 
-# 获取 H@H 设置信息
+# 获取 H@H 客户端设置信息
 while [ -z $f_cname ]; do
 	let GET++
  	if [ $GET -gt 3 ]; then
@@ -101,7 +101,7 @@ if [ $HATHDIR != /tmp ]; then
 	if screen -v >/dev/null; then
 		sleep 5 && cd $HATHDIR
 		screen -ls | grep $OWNNAME || \
-		screen -dmS $OWNNAME java -jar $HATHDIR/HentaiAtHome.jar --port=44388
+		screen -dmS $OWNNAME java -jar $HATHDIR/HentaiAtHome.jar --port=$APPPORT
 	else
 		logger -st $OWNNAME Please install screen.
 	fi
