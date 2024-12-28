@@ -1,108 +1,186 @@
-# 从 Lucky 自定义脚本中传递参数
-WANADDR=$1  # 公网地址
-WANPORT=$2  # 公网端口
-LANPORT=    # Lucky 不传递穿透通道本地端口，留空
+# 公共代理，不保证质量
+# 建议使用本地脚本并自行指定，注意格式
+PROXY='http://jpfhDg:qawsedrftgyhujikolp@hathproxy.ydns.eu:14913'
+
+# 使用网络脚本时，从 Lucky 自定义命令中传递参数
+# 使用本地脚本时，请事先修改好变量值
+IFNAME=$9		# 指定接口，可留空；仅在多 WAN 时需要；拨号接口的格式为 "pppoe-wancm"
+GWLADDR=$4		# 主路由 LAN 的 IPv4 地址
+HATHDIR=$5		# H@H 所在目录
+HATHCID=$6		# H@H 的客户端 ID
+EHIPBID=$7		# ipb_member_id
+EHIPBPW=$8		# ipb_pass_hash
+
+WANADDR=$1		# 使用本地脚本时，该变量不修改
+WANPORT=$2		# 使用本地脚本时，该变量不修改
+LANPORT=$3		# 使用本地脚本时，该变量与 “穿透通道本地端口” 一致
 L4PROTO=tcp
-OWNADDR=    # Lucky 不传递穿透通道本地地址，留空
+OWNADDR=		# Lucky 不传递穿透通道本地地址，留空
 
-APPPORT=$3  # H@H 客户端的本地监听端口，对应启动参数 --port=<port>
-HATHCID=$4  # H@H 客户端 ID (Client ID)
-HATHKEY=$5  # H@H 客户端密钥 (Client Key)
-EHIPBID=$6  # ipb_member_id
-EHIPBPW=$7  # ipb_pass_hash
-HATHDIR=$8	# H@H 客户端所在路径；留空则不自动执行（留空时传递 /tmp）
-[ -n "$9" ] && PROXY=$(echo "-x $9") # 可用的代理协议、地址与端口；留空则不使用代理
-
-OWNNAME=stun_hath_$HATHCID
-
-curl -V >/dev/null || (logger -st $OWNNAME Please install curl.; exit 127)
-sha1sum --version >/dev/null || (logger -st $OWNNAME Please install coreutils-sha1sum; exit 127)
+OWNNAME=$(echo stun_hath$([ -n "$IFNAME" ] && echo @$IFNAME) | sed 's/[[:punct:]]/_/g')
+RELEASE=$(grep ^ID= /etc/os-release | awk -F '=' '{print$2}' | tr -d \")
+OLDPORT=$LANPORT	# Lucky 使用固定本地端口
+OLDDATE=$(awk '{print$NF}' $HATHDIR/$OWNNAME.info 2>/dev/null)
 
 # 防止脚本重复运行
 PIDNF=$( ( ps aux 2>/dev/null; ps ) | awk '{for(i=1;i<=NF;i++)if($i=="PID")n=i}NR==1{print n}' )
 while :; do
-  ( ps aux 2>/dev/null; ps ) | grep $0 | grep -v -e "$$\|grep" | awk 'NR==1{print$'$PIDNF'}' | xargs kill >/dev/null 2>&1 || break
+	( ps aux 2>/dev/null; ps ) | grep $0 | grep -v -e "$$\|grep" | awk 'NR==1{print$'$PIDNF'}' | xargs kill >/dev/null 2>&1 || break
 done
 
 # 保存穿透信息
-echo $(date) $L4PROTO $WANADDR:$WANPORT $([ -n "$LANPORT" ] && echo '->' $OWNADDR:$LANPORT) >>$HATHDIR/$OWNNAME.log
+echo $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT $(date +%s) >$HATHDIR/$OWNNAME.info
+echo $(date) $L4PROTO $WANADDR:$WANPORT '->' $OWNADDR:$LANPORT >>$HATHDIR/$OWNNAME.log
 
-# 获取 H@H 客户端设置信息
-while [ -z $f_cname ]; do
+# 确保与上次穿透相隔 30 秒以上
+[ -n "$OLDDATE" ] && \
+[ $(($(date +%s) - $OLDDATE)) -lt 30 ] && sleep 30
+
+# 获取 H@H 设置信息
+while [ -z "$f_cname" ]; do
 	let GET++
  	if [ $GET -gt 3 ]; then
-  		logger -st $OWNNAME Failed to get the settings. Please check the PROXY.
-    	exit 1
+  		echo Failed to get information. Please check PROXY. >&2
+    		echo Exit... >&2 && exit 1
 	fi
  	[ $GET -ne 1 ] && sleep 15
-	HATHPHP=/tmp/$OWNNAME.php
-	echo >$HATHPHP
-	curl $PROXY -Ls -m 15 \
+	TEMPPHP=$(mktemp)
+	curl -Ls -m 10 \
+	-x $PROXY \
 	-b 'ipb_member_id='$EHIPBID'; ipb_pass_hash='$EHIPBPW'' \
-	-o $HATHPHP \
+	-o $TEMPPHP \
 	'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
-	f_cname=$(grep f_cname $HATHPHP | awk -F '"' '{print$6}' | sed 's/[ ]/+/g')
-	f_throttle_KB=$(grep f_throttle_KB $HATHPHP | awk -F '"' '{print$6}')
-	f_disklimit_GB=$(grep f_disklimit_GB $HATHPHP | awk -F '"' '{print$6}')
-	p_mthbwcap=$(grep p_mthbwcap $HATHPHP | awk -F '"' '{print$6}')
-	f_diskremaining_MB=$(grep f_diskremaining_MB $HATHPHP | awk -F '"' '{print$6}')
-	f_enable_bwm=$(grep f_enable_bwm $HATHPHP | grep checked)
-	f_disable_logging=$(grep f_disable_logging $HATHPHP | grep checked)
-	f_use_less_memory=$(grep f_use_less_memory $HATHPHP | grep checked)
-	f_is_hathdler=$(grep f_is_hathdler $HATHPHP | grep checked)
+	f_cname=$(grep f_cname $TEMPPHP | awk -F '"' '{print$6}' | sed 's/[ ]/+/g')
+	f_throttle_KB=$(grep f_throttle_KB $TEMPPHP | awk -F '"' '{print$6}')
+	f_disklimit_GB=$(grep f_disklimit_GB $TEMPPHP | awk -F '"' '{print$6}')
+	p_mthbwcap=$(grep p_mthbwcap $TEMPPHP | awk -F '"' '{print$6}')
+	f_diskremaining_MB=$(grep f_diskremaining_MB $TEMPPHP | awk -F '"' '{print$6}')
+	f_enable_bwm=$(grep f_enable_bwm $TEMPPHP | grep checked)
+	f_disable_logging=$(grep f_disable_logging $TEMPPHP | grep checked)
+	f_use_less_memory=$(grep f_use_less_memory $TEMPPHP | grep checked)
+	f_is_hathdler=$(grep f_is_hathdler $TEMPPHP | grep checked)
+ 	rm $TEMPPHP
 done
 
-# 检测是否需要更改端口
-[ "$(grep f_port $HATHPHP | awk -F '"' '{print$6}')" = $WANPORT ] && \
-logger -st $OWNNAME The external port $WANPORT/tcp has not changed. && SKIP=1
-
-# 定义与 RPC 服务器交互的函数
-# 访问 http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act=server_stat 查询当前支持的 client_build
-ACTION() {
-	ACT=$1
-	ACTTIME=$(date +%s)
-	ACTKEY=$(echo -n "hentai@home-$ACT--$HATHCID-$ACTTIME-$HATHKEY" | sha1sum | cut -c -40)
-	curl -Ls "http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act=$ACT&add=&cid=$HATHCID&acttime=$ACTTIME&actkey=$ACTKEY"
-}
-
-# 发送 client_suspend 后，更新端口信息
-# 更新后，发送 client_settings 验证端口
-[ -z "$SKIP" ] && ACTION client_suspend >/dev/null
-while [ -z "$SKIP" ]; do
-	let SET++
- 	if [ $SET -gt 3 ]; then
-  		logger -st $OWNNAME Failed to update the external port. Please check the PROXY.
-    	exit 1
-	fi
-	[ $SET -ne 1 ] && sleep 15
-	DATA="settings=1&f_port=$WANPORT&f_cname=$f_cname&f_throttle_KB=$f_throttle_KB&f_disklimit_GB=$f_disklimit_GB"
-	[ "$p_mthbwcap" = 0 ] || DATA="$DATA&p_mthbwcap=$p_mthbwcap"
-	[ "$f_diskremaining_MB" = 0 ] || DATA="$DATA&f_diskremaining_MB=$f_diskremaining_MB"
-	[ -n "$f_enable_bwm" ] && DATA="$DATA&f_enable_bwm=on"
-	[ -n "$f_disable_logging" ] && DATA="$DATA&f_disable_logging=on"
-	[ -n "$f_use_less_memory" ] && DATA="$DATA&f_use_less_memory=on"
-	[ -n "$f_is_hathdler" ] && DATA="$DATA&f_is_hathdler=on"
-	curl $PROXY -Ls -m 15 \
-	-b 'ipb_member_id='$EHIPBID'; ipb_pass_hash='$EHIPBPW'' \
-	-o $HATHPHP \
-	-d ''$DATA'' \
-	'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
-	ACTION client_settings | grep port=$WANPORT >/dev/null && \
-	logger -st $OWNNAME The external port $WANPORT/tcp is updated successfully. && break
-done
-
-# 发送 client_start 后，检测是否需要启动 H@H 客户端
-# 若客户端已启动，则自动恢复连接，无需重启
-# 若客户端未启动，client_suspend 与 client_start 不会造成实质影响
-[ -z "$SKIP" ] && ACTION client_start >/dev/null
-if [ $HATHDIR != /tmp ]; then
-	if screen -v >/dev/null; then
-		sleep 5 && cd $HATHDIR
-		screen -ls | grep $OWNNAME || \
-		screen -dmS $OWNNAME java -jar $HATHDIR/HentaiAtHome.jar --port=$APPPORT
-	else
-		logger -st $OWNNAME Please install screen.
-	fi
+# 停止 H@H，等待 30 秒
+if [ "$(screen -list | grep $OWNNAME)" ]; then
+	screen -S $OWNNAME -X stuff '^C'
+	sleep 30
 fi
 
-logger -st $OWNNAME Now please confirm if the client is running correctly.
+# 更新 H@H 端口信息
+DATA="settings=1&f_port=$WANPORT&f_cname=$f_cname&f_throttle_KB=$f_throttle_KB&f_disklimit_GB=$f_disklimit_GB"
+[ "$p_mthbwcap" = 0 ] || DATA="$DATA&p_mthbwcap=$p_mthbwcap"
+[ "$f_diskremaining_MB" = 0 ] || DATA="$DATA&f_diskremaining_MB=$f_diskremaining_MB"
+[ -n "$f_enable_bwm" ] && DATA="$DATA&f_enable_bwm=on"
+[ -n "$f_disable_logging" ] && DATA="$DATA&f_disable_logging=on"
+[ -n "$f_use_less_memory" ] && DATA="$DATA&f_use_less_memory=on"
+[ -n "$f_is_hathdler" ] && DATA="$DATA&f_is_hathdler=on"
+POSTPHP=$(mktemp)
+curl -Ls -m 10 \
+-x $PROXY \
+-b 'ipb_member_id='$EHIPBID'; ipb_pass_hash='$EHIPBPW'' \
+-o $POSTPHP \
+-d ''$DATA'' \
+'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
+if [ "$(grep f_port $POSTPHP | awk -F '"' '{print$6}')" = $WANPORT ]; then
+	mv $POSTPHP /tmp/$OWNNAME.php
+else
+	echo Failed to get response. Please check PROXY. >&2
+	echo Still continue... >&2
+fi
+
+# 若 H@H 运行在主路由上，则添加 DNAT 规则
+# 系统为 OpenWrt，且未指定 IFNAME 时，使用 uci
+# 其他情况使用 nft，并检测是否需要填充 uci
+SETDNAT() {
+	nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
+	iptables -t nat $(iptables-save | grep $OWNNAME | sed 's/-A/-D/') 2>/dev/null
+	if [ "$RELEASE" = "openwrt" ] && [ -z "$IFNAME" ]; then
+		nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
+		uci -q delete firewall.stun_foo
+		uci -q delete firewall.$OWNNAME
+		uci set firewall.$OWNNAME=redirect
+		uci set firewall.$OWNNAME.name=${OWNNAME}_$LANPORT'->'$WANPORT
+		uci set firewall.$OWNNAME.src=wan
+		uci set firewall.$OWNNAME.proto=tcp
+		uci set firewall.$OWNNAME.src_dport=$LANPORT
+		uci set firewall.$OWNNAME.dest_port=$WANPORT
+		uci commit firewall
+		/etc/init.d/firewall reload >/dev/null 2>&1
+		UCI=1
+	elif nft -v >/dev/null 2>&1; then
+		[ -n "$IFNAME" ] && IIFNAME="iifname $IFNAME"
+		nft add table ip STUN
+		nft add chain ip STUN DNAT { type nat hook prerouting priority dstnat \; }
+		nft insert rule ip STUN DNAT $IIFNAME tcp dport $LANPORT counter redirect to :$WANPORT comment $OWNNAME
+	elif iptables -V >/dev/null 2>&1; then
+		[ -n "$IFNAME" ] && IIFNAME="-i $IFNAME"
+		iptables -t nat -I PREROUTING $IIFNAME -p tcp --dport $LANPORT -m comment --comment $OWNNAME -j REDIRECT --to-ports $WANPORT
+	fi
+	if [ "$RELEASE" = "openwrt" ] && [ "$UCI" != 1 ]; then
+		uci -q delete firewall.stun_foo && RELOAD=1
+		uci -q delete firewall.$OWNNAME && RELOAD=1
+		if uci show firewall | grep =redirect >/dev/null; then
+			i=0
+			for CONFIG in $(uci show firewall | grep =redirect | awk -F = '{print$1}'); do
+				[ "$(uci -q get $CONFIG.enabled)" = 0 ] && let i++ && break
+				[ "$(uci -q get $CONFIG.src)" != "wan" ] && let i++
+			done
+			[ $(uci show firewall | grep =redirect | wc -l) -gt $i ] && RULE=1
+		fi
+		if [ "$RULE" != 1 ]; then
+			uci set firewall.stun_foo=redirect
+			uci set firewall.stun_foo.name=stun_foo
+			uci set firewall.stun_foo.src=wan
+			uci set firewall.stun_foo.mark=$RANDOM
+			RELOAD=1
+		fi
+		uci commit firewall
+		[ "$RELOAD" = 1 ] && /etc/init.d/firewall reload >/dev/null 2>&1
+	fi
+	DNAT=1
+}
+for LANADDR in $(ip -4 a show dev br-lan | grep inet | awk '{print$2}' | awk -F '/' '{print$1}'); do
+	[ "$DNAT" = 1 ] && break
+	[ "$LANADDR" = $GWLADDR ] && SETDNAT
+done
+for LANADDR in $(nslookup -type=A $HOSTNAME | grep Address | grep -v :53 | awk '{print$2}'); do
+	[ "$DNAT" = 1 ] && break
+	[ "$LANADDR" = $GWLADDR ] && SETDNAT
+done
+
+# 若 H@H 运行在主路由下，则通过 UPnP 请求规则
+if [ "$DNAT" != 1 ]; then
+	nft delete rule ip STUN DNAT handle $(nft -a list chain ip STUN DNAT 2>/dev/null | grep \"$OWNNAME\" | awk '{print$NF}') 2>/dev/null
+	[ "$RELEASE" = "openwrt" ] && uci -q delete firewall.$OWNNAME
+	[ -n "$OLDPORT" ] && upnpc -i -d $OLDPORT tcp
+	upnpc -i -e "STUN HATH $WANPORT->$LANPORT->$WANPORT" -a @ $WANPORT $LANPORT tcp
+fi
+
+# 启动 H@H
+RUNHATH() {
+for PID in $(screen -ls | grep $OWNNAME | awk '{print$1}'); do
+	screen -S $PID -X quit
+done
+cd $HATHDIR
+HATHLOG=/tmp/screen_$OWNNAME.log
+: >$HATHLOG
+screen -dmS $OWNNAME -L -Logfile $HATHLOG java -jar $HATHDIR/HentaiAtHome.jar
+}
+RUNHATH
+
+# 检测启动结果
+while :; do
+	sleep 120
+	grep "Startup notification failed" $HATHLOG || break
+	if grep "port $WANPORT" $HATHLOG; then
+		sleep 300
+		RUNHATH
+	else
+		sleep 600
+		exec "$0" "$@"
+	fi
+done
+screen -S $OWNNAME -X log off
+echo -n HentaiAtHome OK.
