@@ -171,7 +171,7 @@ set APPPORT=44388 --image-proxy-host=127.0.0.1 --image-proxy-type=socks --image-
 
 ---
 
-## 获取 H@H 的 ID 与密钥
+## 获取 H@H 客户端的 ID 与密钥
 
 打开 https://e-hentai.org/hentaiathome.php 点击你申请到的 H@H 客户端详情
 
