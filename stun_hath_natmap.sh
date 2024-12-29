@@ -83,7 +83,7 @@ while [ ! $SKIP ]; do
 	-o $HATHPHP \
 	-d ''$DATA'' \
 	'https://e-hentai.org/hentaiathome.php?cid='$HATHCID'&act=settings'
-	ACTION client_settings | grep port=$WANPORT >/dev/null && \
+	[ $(ACTION client_settings | grep port=$WANPORT) ] && \
 	logger -st $OWNNAME The external port $WANPORT/tcp is updated successfully. && break
 done
 
