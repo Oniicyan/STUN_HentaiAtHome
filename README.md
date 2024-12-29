@@ -159,7 +159,7 @@ APPPORT=44388' --image-proxy-host=127.0.0.1 --image-proxy-type=socks --image-pro
 set APPPORT=44388 --image-proxy-host=127.0.0.1 --image-proxy-type=socks --image-proxy-port=10808
 ```
 
-## 获取账号 Cookie
+## 获取 E-Hentai 账号 Cookie
 
 登录 E-Hentai 后，按 `F12` 打开浏览器开发人员工具，抓取网络通信
 
