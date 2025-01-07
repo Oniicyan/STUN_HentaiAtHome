@@ -15,6 +15,8 @@ HATHDIR=$8  # H@H 客户端所在路径；留空则不自动执行（留空时�
 
 OWNNAME=stun_hath_$HATHCID
 
+BUILD=169
+
 curl -V >/dev/null || (logger -st $OWNNAME Please install curl.; exit 127)
 sha1sum --version >/dev/null || (logger -st $OWNNAME Please install coreutils-sha1sum; exit 127)
 
@@ -54,12 +56,11 @@ done
 logger -st $OWNNAME The external port $WANPORT/tcp has not changed. && SKIP=1
 
 # 定义与 RPC 服务器交互的函数
-# 访问 http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act=server_stat 查询当前支持的 client_build
 ACTION() {
 	ACT=$1
 	ACTTIME=$(date +%s)
 	ACTKEY=$(echo -n "hentai@home-$ACT--$HATHCID-$ACTTIME-$HATHKEY" | sha1sum | cut -c -40)
-	curl -Ls 'http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act='$ACT'&add=&cid='$HATHCID'&acttime='$ACTTIME'&actkey='$ACTKEY''
+	curl -Ls 'http://rpc.hentaiathome.net/15/rpc?clientbuild='$BUILD'&act='$ACT'&add=&cid='$HATHCID'&acttime='$ACTTIME'&actkey='$ACTKEY''
 }
 
 # 发送 client_suspend 后，更新端口信息
