@@ -39,7 +39,7 @@ ACTION() {
 
 # 检测是否需要更改端口
 [ $(ACTION client_settings | grep port=$WANPORT) ] && \
-echo 外部端口 $WANPORT/tcp 未发生变化 && SKIP=1
+logger -st $OWNNAME The external port $WANPORT/tcp has not changed. && SKIP=1
 
 # 获取 H@H 客户端设置信息
 while [ ! $SKIP ] && [ ! $f_cname ]; do
