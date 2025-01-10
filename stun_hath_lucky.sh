@@ -29,8 +29,20 @@ done
 # 保存穿透信息
 echo $(date) $L4PROTO $WANADDR:$WANPORT $([ -n "$LANPORT" ] && echo '->' $OWNADDR:$LANPORT) >>$HATHDIR/$OWNNAME.log
 
+# 定义与 RPC 服务器交互的函数
+ACTION() {
+	ACT=$1
+	ACTTIME=$(date +%s)
+	ACTKEY=$(echo -n "hentai@home-$ACT--$HATHCID-$ACTTIME-$HATHKEY" | sha1sum | cut -c -40)
+	curl -Ls 'http://rpc.hentaiathome.net/15/rpc?clientbuild='$BUILD'&act='$ACT'&add=&cid='$HATHCID'&acttime='$ACTTIME'&actkey='$ACTKEY''
+}
+
+# 检测是否需要更改端口
+[ $(ACTION client_settings | grep port=$WANPORT) ] && \
+echo 外部端口 $WANPORT/tcp 未发生变化 && SKIP=1
+
 # 获取 H@H 客户端设置信息
-while [ -z $f_cname ]; do
+while [ ! $SKIP ] && [ ! $f_cname ]; do
 	let GET++
  	[ $GET -gt 3 ] && logger -st $OWNNAME Failed to get the settings. Please check the PROXY. && exit 1
  	[ $GET -ne 1 ] && logger -st $OWNNAME Failed to get the settings. Wait 15 seconds ... && sleep 15
@@ -50,18 +62,6 @@ while [ -z $f_cname ]; do
 	f_use_less_memory=$(grep f_use_less_memory $HATHPHP | grep checked)
 	f_is_hathdler=$(grep f_is_hathdler $HATHPHP | grep checked)
 done
-
-# 检测是否需要更改端口
-[ "$(grep f_port $HATHPHP | awk -F '"' '{print$6}')" = $WANPORT ] && \
-logger -st $OWNNAME The external port $WANPORT/tcp has not changed. && SKIP=1
-
-# 定义与 RPC 服务器交互的函数
-ACTION() {
-	ACT=$1
-	ACTTIME=$(date +%s)
-	ACTKEY=$(echo -n "hentai@home-$ACT--$HATHCID-$ACTTIME-$HATHKEY" | sha1sum | cut -c -40)
-	curl -Ls 'http://rpc.hentaiathome.net/15/rpc?clientbuild='$BUILD'&act='$ACT'&add=&cid='$HATHCID'&acttime='$ACTTIME'&actkey='$ACTKEY''
-}
 
 # 发送 client_suspend 后，更新端口信息
 # 更新后，发送 client_settings 验证端口
