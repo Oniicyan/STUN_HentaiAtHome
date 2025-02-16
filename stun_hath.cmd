@@ -16,7 +16,7 @@ echo %9 | findstr :// >nul && set PROXY=-x %9
 :: 防止脚本重复执行
 set MATCH="CommandLine like '%%%~0%%' and Not CommandLine like '%%%WANADDR% %WANPORT%%%'"
 for /F %%a in ('wmic process where %MATCH:\=\\% get ProcessId') do (
-	echo %%a| findstr "^[0-9]*$" >nul && taskkill /PID %%a 2>nul
+	echo %%a| findstr "^[0-9]*$" >nul && taskkill /PID %%a >nul 2>&1
 )
 
 :: 初始化
@@ -59,6 +59,7 @@ for /F tokens^=6^ delims^=^" %%a in ('findstr f_diskremaining_MB stun_hath.php')
 
 :: 创建 RPC 脚本
 :: 访问 http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act=server_stat 查询当前支持的 client_build
+del /Q %TEMP%\stun_hath.ps1 2>nul
 echo $ACTTIME = [DateTimeOffset]::Now.ToUnixTimeSeconds() >%TEMP%\stun_hath.ps1
 echo $ACTKEY = $(-Join [security.cryptography.sha1managed]::new().ComputeHash([Text.Encoding]::Utf8.GetBytes("hentai@home-$args--%HATHCID%-$ACTTIME-%HATHKEY%")).ForEach{$_.ToString("x2")}) >>%TEMP%\stun_hath.ps1
 echo curl.exe -Ls "http://rpc.hentaiathome.net/15/rpc?clientbuild=169&act=$args&add=&cid=%HATHCID%&acttime=$ACTTIME&actkey=$ACTKEY" >>%TEMP%\stun_hath.ps1
