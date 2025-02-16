@@ -15,7 +15,7 @@ echo %9 | findstr :// >nul && set PROXY=-x %9
 
 :: 防止脚本重复运行
 set MATCH="CommandLine like '%%%~0%%' and Not CommandLine like '%%%WANADDR% %WANPORT%%%'"
-for /F %%a in ('wmic process where %MATCH:\=\\% get ProcessId' 2>nul) do (
+for /F %%a in ('wmic process where %MATCH:\=\\% get ProcessId 2>nul') do (
 	echo %%a| findstr "^[0-9]*$" >nul && taskkill /PID %%a 2>nul
 )
 
